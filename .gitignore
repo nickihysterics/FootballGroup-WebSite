@@ -9,4 +9,4 @@ __pycache__/
 /media/
 /.pytest_cache/
 /node_modules/
-
+celerybeat-schedule
