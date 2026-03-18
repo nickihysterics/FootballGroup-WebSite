@@ -1,13 +1,5 @@
-import dynamic from "next/dynamic";
-import Link from "next/link";
-
 import CountdownChip from "../components/countdown-chip";
-import { getHomeData } from "../lib/api";
-
-const StadiumScene = dynamic(() => import("../components/stadium-scene"), {
-  ssr: false,
-  loading: () => <div className="scene-skeleton">Загрузка сцены арены</div>,
-});
+import StadiumScene from "../components/stadium-scene";
 
 const statLabels = [
   ["Побед", "wins"],
@@ -15,8 +7,8 @@ const statLabels = [
   ["Сухих матчей", "clean_sheets"],
 ];
 
-export default async function HomePage() {
-  const { club, hero } = await getHomeData();
+export default function HomePage({ data }) {
+  const { club, hero } = data;
   const leadStory = hero.featured_news[0];
   const visualImage = leadStory?.cover_url || hero.gallery_items[0]?.image_url || hero.featured_players[0]?.photo_url;
   const scheduleRail = hero.next_matches.slice(0, 3);
@@ -49,9 +41,9 @@ export default async function HomePage() {
                 {hero.featured_match.competition} · {hero.featured_match.date_label} · {hero.featured_match.time_label}
               </p>
               <div className="hero-spotlight__footer">
-                <Link href="/matches" className="text-link">
+                <a href="/matches/" className="text-link">
                   Матч-центр
-                </Link>
+                </a>
               </div>
             </div>
           ) : null}
@@ -114,7 +106,7 @@ export default async function HomePage() {
               </article>
             ) : null}
             {playerFocus ? (
-              <Link href="/team" className="hero-spotlight hero-spotlight--light">
+              <a href="/team/" className="hero-spotlight hero-spotlight--light">
                 <span>Игрок недели</span>
                 <strong>{playerFocus.full_name}</strong>
                 <p>
@@ -124,7 +116,7 @@ export default async function HomePage() {
                 <div className="hero-spotlight__footer">
                   <span className="text-link">Открыть состав</span>
                 </div>
-              </Link>
+              </a>
             ) : null}
           </div>
         </div>
@@ -139,7 +131,7 @@ export default async function HomePage() {
           {hero.featured_match ? (
             <article className="matchday-band__feature">
               <div className="matchday-band__meta">
-                <span className="badge-chip badge-chip--bright">Next Match</span>
+                <span className="badge-chip badge-chip--bright">Следующий матч</span>
                 <CountdownChip kickoffIso={hero.featured_match.kickoff_iso} />
               </div>
               <h3>
@@ -166,16 +158,16 @@ export default async function HomePage() {
                     Билеты на матч
                   </a>
                 ) : null}
-                <Link href="/matches" className="button button--ghost">
+                <a href="/matches/" className="button button--ghost">
                   Полный календарь
-                </Link>
+                </a>
               </div>
             </article>
           ) : null}
 
           {hero.latest_result ? (
             <article className="matchday-band__score">
-              <span className="eyebrow">Last result</span>
+              <span className="eyebrow">Последний результат</span>
               <strong className="scoreline">
                 {hero.latest_result.score_for ?? "–"}:{hero.latest_result.score_against ?? "–"}
               </strong>
@@ -298,7 +290,7 @@ export default async function HomePage() {
               <div className="player-card__body">
                 <span className="badge-chip">{player.position_label}</span>
                 <h3>{player.full_name}</h3>
-                <p>{player.bio || player.compact_profile || "Профиль игрока обновляется из клубной системы."}</p>
+                <p>{player.bio || player.compact_profile || "Игровой профиль футболиста первой команды."}</p>
                 <div className="player-card__stats">
                   <div>
                     <span>Матчи</span>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div
+    id="react-app-root"
+    data-page="{{ page_name }}"
+    data-path="{{ request.path }}"
+></div>
+{{ initial_payload|json_script:"react-page-data" }}
+<noscript>
+    <div style="padding:24px;font-family:system-ui,sans-serif;">
+        Для корректной работы публичного сайта требуется JavaScript.
+    </div>
+</noscript>
+{% endblock %}

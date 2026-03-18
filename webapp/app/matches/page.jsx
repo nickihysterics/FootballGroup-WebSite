@@ -1,12 +1,7 @@
 import CountdownChip from "../../components/countdown-chip";
-import { getMatchesData } from "../../lib/api";
 
-export const metadata = {
-  title: "Матчи | Газпром Футбол",
-};
-
-export default async function MatchesPage() {
-  const { featured_match, matches, match_hub } = await getMatchesData();
+export default function MatchesPage({ data }) {
+  const { featured_match, matches, match_hub } = data;
 
   return (
     <>

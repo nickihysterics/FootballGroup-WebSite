@@ -4,7 +4,7 @@
 
 ## Что внутри
 
-- Полноценный React-фронт на `Next.js`: главная, команда, матчи, медиа, контакты
+- Один публичный фронт на `Next.js`: главная, команда, матчи, медиа, контакты
 - Django Admin и JSON API для управления игроками, матчами, новостями, трофеями и контактами
 - PostgreSQL как основная БД в Docker-стеке
 - Redis-кэш и Celery-задача для обновления матч-хаба
@@ -15,15 +15,18 @@
 
 ```bash
 cp .env.example .env
-python3 scripts/fetch_zenit_snapshot.py
-docker compose up --build
+docker compose up --build -d
 ```
 
 Публичный React-фронт будет доступен на `http://127.0.0.1:3000`.
 
-Django backend и API:
+Django backend:
 - `http://127.0.0.1:8000/admin/`
 - `http://127.0.0.1:8000/api/home/`
+
+Важно:
+- публичный сайт живёт только на `:3000`
+- `:8000` используется для `admin` и `api`
 
 ## Админка
 
@@ -37,13 +40,13 @@ Django backend и API:
 
 ```bash
 python3 scripts/fetch_zenit_snapshot.py
-docker compose exec web python manage.py sync_zenit_reference
+docker compose exec -T web python manage.py sync_zenit_reference
 ```
 
 Если нужно заново скачать snapshot напрямую с official сайта из контейнера:
 
 ```bash
-docker compose exec web python manage.py sync_zenit_reference --refresh
+docker compose exec -T web python manage.py sync_zenit_reference --refresh
 ```
 
 ## Полезные команды
@@ -52,7 +55,7 @@ docker compose exec web python manage.py sync_zenit_reference --refresh
 docker compose up -d
 docker compose logs -f web
 docker compose logs -f frontend
-docker compose exec web python manage.py createsuperuser
-docker compose exec web python manage.py seed_demo
+docker compose exec -T web python manage.py createsuperuser
+docker compose exec -T web python manage.py seed_demo
 docker compose down
 ```

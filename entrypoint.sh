@@ -28,20 +28,16 @@ PY
 fi
 
 if [ "$DJANGO_RUN_BOOTSTRAP" = "1" ]; then
-  if [ -f /app/frontend/package.json ]; then
-    if [ ! -d /app/frontend/node_modules/react ]; then
-      if [ -f /app/frontend/package-lock.json ]; then
-        npm ci --prefix /app/frontend
-      else
-        npm install --prefix /app/frontend
-      fi
+  if [ -f /app/webapp/package.json ]; then
+    if [ ! -d /app/webapp/node_modules/react ]; then
+      npm install --prefix /app/webapp
     fi
 
-    npm run build --prefix /app/frontend
+    npm run build --prefix /app/webapp
   fi
 
   python manage.py migrate --noinput
-  python manage.py collectstatic --noinput
+  python manage.py collectstatic --noinput --clear
 
   if [ "$DJANGO_SEED_DEMO" = "1" ]; then
     python manage.py seed_demo

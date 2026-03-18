@@ -1,11 +1,5 @@
-import { getTeamData } from "../../lib/api";
-
-export const metadata = {
-  title: "Команда | Газпром Футбол",
-};
-
-export default async function TeamPage() {
-  const { captain, groups } = await getTeamData();
+export default function TeamPage({ data }) {
+  const { captain, groups } = data;
   const overview = groups.filter((group) => group.players.length);
 
   return (

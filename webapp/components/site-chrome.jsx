@@ -1,28 +1,21 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
 import GazpromMark from "./gazprom-mark";
 
 const NAV_ITEMS = [
   { href: "/", label: "Главная" },
-  { href: "/team", label: "Команда" },
-  { href: "/matches", label: "Матчи" },
-  { href: "/media", label: "Медиа" },
-  { href: "/contacts", label: "Контакты" },
+  { href: "/team/", label: "Команда" },
+  { href: "/matches/", label: "Матчи" },
+  { href: "/media/", label: "Медиа" },
+  { href: "/contacts/", label: "Контакты" },
 ];
 
 function isActive(pathname, href) {
   if (href === "/") {
     return pathname === "/";
   }
-  return pathname.startsWith(href);
+  return pathname === href || pathname.startsWith(href);
 }
 
-export default function SiteChrome({ club, children }) {
-  const pathname = usePathname();
-
+export default function SiteChrome({ club, pathname, children }) {
   return (
     <div className="site-shell">
       <div className="site-shell__mesh" />
@@ -36,7 +29,7 @@ export default function SiteChrome({ club, children }) {
           <span className="utility-pill utility-pill--ghost">{club.city}</span>
         </div>
         <div className="site-header__inner">
-          <Link href="/" className="brand-mark" aria-label="На главную">
+          <a href="/" className="brand-mark" aria-label="На главную">
             <span className="brand-mark__emblem">
               <GazpromMark className="brand-mark__symbol" />
             </span>
@@ -44,16 +37,16 @@ export default function SiteChrome({ club, children }) {
               <strong>{club.short_name}</strong>
               <span>{club.hero_badge}</span>
             </span>
-          </Link>
+          </a>
           <nav className="site-nav">
             {NAV_ITEMS.map((item) => (
-              <Link
+              <a
                 key={item.href}
                 href={item.href}
                 className={isActive(pathname, item.href) ? "site-nav__link is-active" : "site-nav__link"}
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </nav>
           <div className="site-header__actions">
@@ -108,7 +101,7 @@ export default function SiteChrome({ club, children }) {
           </div>
           <div className="site-footer__column">
             <span className="site-footer__label">Маршруты</span>
-            <Link href="/matches">Матч-центр</Link>
+            <a href="/matches/">Матч-центр</a>
             {club.links.membership_url ? (
               <a href={club.links.membership_url} target="_blank" rel="noreferrer">
                 Абонементы

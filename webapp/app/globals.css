@@ -1,4 +1,6 @@
 :root {
+  --font-display: "Exo 2";
+  --font-body: "Golos Text";
   --bg: #edf4fa;
   --bg-strong: #f7fbff;
   --surface: rgba(255, 255, 255, 0.86);

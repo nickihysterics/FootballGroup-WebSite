@@ -1,11 +1,5 @@
-import { getMediaData } from "../../lib/api";
-
-export const metadata = {
-  title: "Медиа | Газпром Футбол",
-};
-
-export default async function MediaPage() {
-  const { lead_story: leadStory, news_items: newsItems, gallery_items: galleryItems } = await getMediaData();
+export default function MediaPage({ data }) {
+  const { lead_story: leadStory, news_items: newsItems, gallery_items: galleryItems } = data;
   const sideStories = newsItems.slice(1, 3);
 
   return (

@@ -1,11 +1,5 @@
-import { getContactsData } from "../../lib/api";
-
-export const metadata = {
-  title: "Контакты | Газпром Футбол",
-};
-
-export default async function ContactsPage() {
-  const { club, channels, recent_matches: recentMatches } = await getContactsData();
+export default function ContactsPage({ data }) {
+  const { club, channels, recent_matches: recentMatches } = data;
   const partnershipUrl = club.links.hospitality_url || club.links.membership_url || club.links.shop_url || club.source_url;
 
   return (

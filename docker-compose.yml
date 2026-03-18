@@ -22,26 +22,13 @@ services:
       DJANGO_RUN_BOOTSTRAP: "1"
     volumes:
       - .:/app
-      - frontend_node_modules:/app/frontend/node_modules
+      - webapp_node_modules:/app/webapp/node_modules
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
-
-  frontend:
-    build:
-      context: .
-      dockerfile: webapp/Dockerfile
-    environment:
-      DJANGO_API_URL: http://web:8000/api
-      NEXT_PUBLIC_ADMIN_URL: http://127.0.0.1:8000/admin/
-    ports:
-      - "3000:3000"
-    depends_on:
-      web:
         condition: service_started
 
   celery:
@@ -81,4 +68,4 @@ services:
 
 volumes:
   postgres_data:
-  frontend_node_modules:
+  webapp_node_modules:

@@ -1,5 +1,4 @@
 from django.core.cache import cache
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.formats import date_format, time_format
@@ -48,7 +47,6 @@ def serialize_profile(profile):
             "video_url": profile.video_url if profile else "",
             "telegram_url": profile.telegram_url if profile else "",
             "vk_url": profile.vk_url if profile else "",
-            "admin_url": "/admin/",
         },
     }
 
