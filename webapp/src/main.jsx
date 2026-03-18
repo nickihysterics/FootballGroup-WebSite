@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
 import App from "./app.jsx";
 import "../app/globals.css";
@@ -14,7 +15,9 @@ if (rootElement && payloadElement?.textContent) {
 
   createRoot(rootElement).render(
     <React.StrictMode>
-      <App page={page} pathname={pathname} payload={payload} />
+      <BrowserRouter>
+        <App initialPage={page} initialPathname={pathname} initialPayload={payload} />
+      </BrowserRouter>
     </React.StrictMode>,
   );
 }

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import CountdownChip from "../components/countdown-chip";
 import StadiumScene from "../components/stadium-scene";
 
@@ -41,9 +43,9 @@ export default function HomePage({ data }) {
                 {hero.featured_match.competition} · {hero.featured_match.date_label} · {hero.featured_match.time_label}
               </p>
               <div className="hero-spotlight__footer">
-                <a href="/matches/" className="text-link">
+                <Link to="/matches/" className="text-link">
                   Матч-центр
-                </a>
+                </Link>
               </div>
             </div>
           ) : null}
@@ -106,7 +108,7 @@ export default function HomePage({ data }) {
               </article>
             ) : null}
             {playerFocus ? (
-              <a href="/team/" className="hero-spotlight hero-spotlight--light">
+              <Link to="/team/" className="hero-spotlight hero-spotlight--light">
                 <span>Игрок недели</span>
                 <strong>{playerFocus.full_name}</strong>
                 <p>
@@ -116,7 +118,7 @@ export default function HomePage({ data }) {
                 <div className="hero-spotlight__footer">
                   <span className="text-link">Открыть состав</span>
                 </div>
-              </a>
+              </Link>
             ) : null}
           </div>
         </div>
@@ -158,9 +160,9 @@ export default function HomePage({ data }) {
                     Билеты на матч
                   </a>
                 ) : null}
-                <a href="/matches/" className="button button--ghost">
+                <Link to="/matches/" className="button button--ghost">
                   Полный календарь
-                </a>
+                </Link>
               </div>
             </article>
           ) : null}

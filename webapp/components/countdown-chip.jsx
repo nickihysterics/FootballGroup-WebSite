@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 
 function formatCountdown(kickoffIso) {
@@ -5,15 +6,19 @@ function formatCountdown(kickoffIso) {
     return "Детали матча";
   }
 
-  const diff = new Date(kickoffIso).getTime() - Date.now();
-  if (diff <= 0) {
+  const kickoff = dayjs(kickoffIso);
+  if (!kickoff.isValid()) {
+    return "Детали матча";
+  }
+
+  const diffMinutes = kickoff.diff(dayjs(), "minute");
+  if (diffMinutes <= 0) {
     return "Матч начался";
   }
 
-  const totalMinutes = Math.floor(diff / 60000);
-  const days = Math.floor(totalMinutes / (60 * 24));
-  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
-  const minutes = totalMinutes % 60;
+  const days = Math.floor(diffMinutes / (60 * 24));
+  const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
+  const minutes = diffMinutes % 60;
 
   if (days > 0) {
     return `${days}д ${hours}ч ${minutes}м`;

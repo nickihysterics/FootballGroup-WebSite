@@ -1,21 +1,19 @@
+import { ArrowUpRight, CalendarDays, House, Mail, MapPin, Newspaper, Phone, ShoppingBag, Ticket, Users } from "lucide-react";
+import { Link, NavLink } from "react-router-dom";
+
+import { cn } from "../src/lib/cn.js";
+import { PAGE_ROUTES } from "../src/lib/routes.js";
 import GazpromMark from "./gazprom-mark";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Главная" },
-  { href: "/team/", label: "Команда" },
-  { href: "/matches/", label: "Матчи" },
-  { href: "/media/", label: "Медиа" },
-  { href: "/contacts/", label: "Контакты" },
-];
+const NAV_ICONS = {
+  home: House,
+  team: Users,
+  matches: CalendarDays,
+  media: Newspaper,
+  contacts: Phone,
+};
 
-function isActive(pathname, href) {
-  if (href === "/") {
-    return pathname === "/";
-  }
-  return pathname === href || pathname.startsWith(href);
-}
-
-export default function SiteChrome({ club, pathname, children }) {
+export default function SiteChrome({ club, children }) {
   return (
     <div className="site-shell">
       <div className="site-shell__mesh" />
@@ -29,7 +27,7 @@ export default function SiteChrome({ club, pathname, children }) {
           <span className="utility-pill utility-pill--ghost">{club.city}</span>
         </div>
         <div className="site-header__inner">
-          <a href="/" className="brand-mark" aria-label="На главную">
+          <Link to="/" className="brand-mark" aria-label="На главную">
             <span className="brand-mark__emblem">
               <GazpromMark className="brand-mark__symbol" />
             </span>
@@ -37,30 +35,38 @@ export default function SiteChrome({ club, pathname, children }) {
               <strong>{club.short_name}</strong>
               <span>{club.hero_badge}</span>
             </span>
-          </a>
+          </Link>
           <nav className="site-nav">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className={isActive(pathname, item.href) ? "site-nav__link is-active" : "site-nav__link"}
-              >
-                {item.label}
-              </a>
-            ))}
+            {PAGE_ROUTES.map((item) => {
+              const Icon = NAV_ICONS[item.page];
+
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) => cn("site-nav__link inline-flex items-center gap-2", isActive && "is-active")}
+                >
+                  {Icon ? <Icon className="h-4 w-4 shrink-0" strokeWidth={1.9} /> : null}
+                  <span>{item.label}</span>
+                </NavLink>
+              );
+            })}
           </nav>
           <div className="site-header__actions">
             {club.links.ticket_url ? (
               <a href={club.links.ticket_url} target="_blank" rel="noreferrer" className="button button--primary">
+                <Ticket className="h-4 w-4" strokeWidth={1.9} />
                 Билеты
               </a>
             ) : null}
             {club.links.hospitality_url ? (
               <a href={club.links.hospitality_url} target="_blank" rel="noreferrer" className="button button--ghost">
+                <ArrowUpRight className="h-4 w-4" strokeWidth={1.9} />
                 VIP-места
               </a>
             ) : club.links.shop_url ? (
               <a href={club.links.shop_url} target="_blank" rel="noreferrer" className="button button--ghost">
+                <ShoppingBag className="h-4 w-4" strokeWidth={1.9} />
                 Магазин
               </a>
             ) : null}
@@ -81,13 +87,22 @@ export default function SiteChrome({ club, pathname, children }) {
           <div className="site-footer__column">
             <span className="site-footer__label">Арена</span>
             <strong>{club.stadium}</strong>
-            <p>{club.city}</p>
+            <p className="inline-flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-sky-400" strokeWidth={1.9} />
+              <span>{club.city}</span>
+            </p>
             <p>{club.address}</p>
           </div>
           <div className="site-footer__column">
             <span className="site-footer__label">Коммуникации</span>
-            <a href={`mailto:${club.email}`}>{club.email}</a>
-            <a href={`tel:${club.phone}`}>{club.phone}</a>
+            <a href={`mailto:${club.email}`} className="inline-flex items-center gap-2">
+              <Mail className="h-4 w-4 text-sky-400" strokeWidth={1.9} />
+              <span>{club.email}</span>
+            </a>
+            <a href={`tel:${club.phone}`} className="inline-flex items-center gap-2">
+              <Phone className="h-4 w-4 text-sky-400" strokeWidth={1.9} />
+              <span>{club.phone}</span>
+            </a>
             {club.links.telegram_url ? (
               <a href={club.links.telegram_url} target="_blank" rel="noreferrer">
                 Telegram
@@ -101,7 +116,7 @@ export default function SiteChrome({ club, pathname, children }) {
           </div>
           <div className="site-footer__column">
             <span className="site-footer__label">Маршруты</span>
-            <a href="/matches/">Матч-центр</a>
+            <Link to="/matches/">Матч-центр</Link>
             {club.links.membership_url ? (
               <a href={club.links.membership_url} target="_blank" rel="noreferrer">
                 Абонементы
