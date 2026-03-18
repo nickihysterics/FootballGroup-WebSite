@@ -7,7 +7,9 @@
     id="react-app-root"
     data-page="{{ page_name }}"
     data-path="{{ request.path }}"
-></div>
+>
+    {% include "pages/server_fallback.html" %}
+</div>
 {{ initial_payload|json_script:"react-page-data" }}
 <noscript>
     <div style="padding:24px;font-family:system-ui,sans-serif;">

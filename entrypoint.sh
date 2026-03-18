@@ -29,7 +29,11 @@ fi
 
 if [ "$DJANGO_RUN_BOOTSTRAP" = "1" ]; then
   if [ -f /app/webapp/package.json ]; then
-    if [ ! -d /app/webapp/node_modules/react ]; then
+    if [ -f /app/webapp/package-lock.json ]; then
+      if [ ! -d /app/webapp/node_modules/react ] || [ ! -f /app/webapp/node_modules/.package-lock.json ] || [ /app/webapp/package-lock.json -nt /app/webapp/node_modules/.package-lock.json ] || [ /app/webapp/package.json -nt /app/webapp/node_modules/.package-lock.json ]; then
+        npm ci --prefix /app/webapp
+      fi
+    elif [ ! -d /app/webapp/node_modules/react ]; then
       npm install --prefix /app/webapp
     fi
 
