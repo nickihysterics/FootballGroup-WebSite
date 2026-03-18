@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club_profile.short_name|default:"Gazprom FC" }} | Команда{% endblock %}
+
+{% block content %}
+<section class="page-hero section">
+    <div class="page-hero__copy" data-reveal>
+        <p class="eyebrow">Первая команда</p>
+        <h1>Состав с крупной подачей, реальными данными и нормальной визуальной иерархией</h1>
+        <p>На странице собраны реальные карточки футболистов, портреты и ключевые показатели. Источники остаются официальными, но визуальный язык уже полностью клубный.</p>
+    </div>
+    {% if captain %}
+    <aside class="captain-card" data-reveal>
+        <span class="pill">Капитан</span>
+        <h2>{{ captain.full_name }}</h2>
+        <p>{{ captain.bio }}</p>
+        <dl>
+            <div><dt>Номер</dt><dd>#{{ captain.number }}</dd></div>
+            <div><dt>Позиция</dt><dd>{{ captain.get_position_display }}</dd></div>
+            <div><dt>Гражданство</dt><dd>{{ captain.citizenship }}</dd></div>
+            <div><dt>Матчи</dt><dd>{{ captain.matches_for_club }}</dd></div>
+        </dl>
+        {% if captain.source_url %}
+        <a href="{{ captain.source_url }}" target="_blank" rel="noreferrer" class="text-link">Карточка игрока в первоисточнике</a>
+        {% endif %}
+    </aside>
+    {% endif %}
+</section>
+
+<section class="section section--tight">
+    <div class="roster-grid">
+        {% for player in players %}
+        <article class="roster-card" data-reveal>
+            <div class="roster-card__media">
+                {% if player.photo_url %}
+                <img src="{{ player.photo_url }}" alt="{{ player.full_name }}">
+                {% else %}
+                <span>{{ player.initials }}</span>
+                {% endif %}
+            </div>
+            <div class="roster-card__top">
+                <span class="roster-card__number">#{{ player.number }}</span>
+                <span class="pill">{{ player.get_position_display }}</span>
+            </div>
+            <h3>{{ player.full_name }}</h3>
+            <p>{{ player.bio }}</p>
+            <div class="data-cluster">
+                {% if player.birth_date %}<span>{{ player.birth_date|date:"d.m.Y" }}</span>{% endif %}
+                {% if player.place_of_birth %}<span>{{ player.place_of_birth }}</span>{% endif %}
+                {% if player.citizenship %}<span>{{ player.citizenship }}</span>{% endif %}
+                {% if player.previous_club %}<span>Предыдущий клуб: {{ player.previous_club }}</span>{% endif %}
+            </div>
+            <div class="roster-card__stats">
+                <div><span>Рост</span><strong>{% if player.height_cm %}{{ player.height_cm }} см{% else %}—{% endif %}</strong></div>
+                <div><span>Вес</span><strong>{% if player.weight_kg %}{{ player.weight_kg }} кг{% else %}—{% endif %}</strong></div>
+                <div><span>Матчи</span><strong>{{ player.matches_for_club }}</strong></div>
+                <div><span>Минуты</span><strong>{{ player.minutes_for_club }}</strong></div>
+                <div><span>Голы</span><strong>{{ player.goals_for_club }}</strong></div>
+                <div><span>Карточки</span><strong>{{ player.yellow_cards }}/{{ player.red_cards }}</strong></div>
+            </div>
+            {% if player.source_url %}
+            <a href="{{ player.source_url }}" target="_blank" rel="noreferrer" class="text-link">Открыть официальный профиль</a>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

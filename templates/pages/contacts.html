@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club_profile.short_name|default:"Gazprom FC" }} | Контакты{% endblock %}
+
+{% block content %}
+<section class="page-hero section">
+    <div class="page-hero__copy" data-reveal>
+        <p class="eyebrow">Контакты</p>
+        <h1>Контакты клуба, площадка и рабочая точка редакционной команды</h1>
+        <p>Страница держит официальный контактный контур, привязку к арене и аккуратно показывает, откуда приходит клубный контент.</p>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="contact-grid">
+        <article class="panel panel--deep" data-reveal>
+            <h2>{{ club_profile.name|default:"Футбольная команда Газпром" }}</h2>
+            <ul class="contact-list">
+                <li><span>Город</span><strong>{{ club_profile.city|default:"Томск" }}</strong></li>
+                <li><span>Стадион</span><strong>{{ club_profile.stadium|default:"Газпром Арена Север" }}</strong></li>
+                <li><span>Адрес</span><strong>{{ club_profile.address|default:"Томск" }}</strong></li>
+                <li><span>Email</span><strong><a href="mailto:{{ club_profile.email }}">{{ club_profile.email|default:"team@gazprom-fc.ru" }}</a></strong></li>
+                <li><span>Телефон</span><strong><a href="tel:{{ club_profile.phone }}">{{ club_profile.phone|default:"+7 (3822) 00-00-00" }}</a></strong></li>
+                {% if club_profile.source_url %}
+                <li><span>Источник</span><strong><a href="{{ club_profile.source_url }}" target="_blank" rel="noreferrer">{{ club_profile.source_name|default:"Официальный источник" }}</a></strong></li>
+                {% endif %}
+            </ul>
+        </article>
+        <article class="panel stadium-panel" data-reveal>
+            <span class="pill">Арена</span>
+            <h2>{{ club_profile.stadium|default:"Газпром Арена Север" }}</h2>
+            <p>Главная сцена сайта строится вокруг образа домашней арены: световые проходы, крупное табло, объёмный стадион и подача, которая держится на бренде, а не на техностеке.</p>
+            <div class="stadium-panel__grid">
+                <div><span>Материалы</span><strong>Официальная база клуба</strong></div>
+                <div><span>Коммуникации</span><strong>Контакты и источники</strong></div>
+                <div><span>Редактура</span><strong>Закрытый вход для команды</strong></div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="section-heading" data-reveal>
+        <p class="eyebrow">Последние матчи</p>
+        <h2>Последние закрытые игры</h2>
+    </div>
+    <div class="result-grid">
+        {% for match in recent_matches %}
+        <article class="panel" data-reveal>
+            <span class="pill">{{ match.competition }}</span>
+            <h3>{{ club_profile.short_name|default:"Газпром Футбол" }} vs {{ match.opponent }}</h3>
+            <strong class="result-grid__score">{{ match.result_label }}</strong>
+            <p>{{ match.summary }}</p>
+            {% if match.source_url %}
+            <a href="{{ match.source_url }}" target="_blank" rel="noreferrer" class="text-link">Официальный источник</a>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

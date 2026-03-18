@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ club_profile.short_name|default:"Gazprom FC" }}{% endblock %}</title>
+    <meta name="description" content="Официальная клубная платформа футбольной команды Газпрома: матч-центр, билеты, абонементы, магазин и медиа в фирменной подаче.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700;800&family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="site-shell">
+        <div class="site-noise"></div>
+        <header class="topbar">
+            <div class="topbar__inner">
+                <a href="{% url 'home' %}" class="brand" aria-label="На главную">
+                    <span class="brand__lockup">
+                        {% include "partials/gazprom_wordmark.html" %}
+                    </span>
+                    <span class="brand__copy">
+                        <strong>{{ club_profile.short_name|default:"Газпром Футбол" }}</strong>
+                        <span>{{ club_profile.hero_badge|default:"Корпоративная футбольная программа" }}</span>
+                    </span>
+                </a>
+                <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Меню</button>
+                <nav id="primary-nav" class="nav">
+                    <a href="{% url 'matches' %}">Матч-центр</a>
+                    {% if club_profile.ticket_url %}
+                    <a href="{{ club_profile.ticket_url }}" target="_blank" rel="noreferrer">Билеты</a>
+                    {% endif %}
+                    {% if club_profile.membership_url %}
+                    <a href="{{ club_profile.membership_url }}" target="_blank" rel="noreferrer">Абонементы</a>
+                    {% endif %}
+                    {% if club_profile.shop_url %}
+                    <a href="{{ club_profile.shop_url }}" target="_blank" rel="noreferrer">Магазин</a>
+                    {% endif %}
+                    <a href="{% url 'team' %}">Команда</a>
+                    <a href="{% url 'media' %}">Медиа</a>
+                    <a href="{% url 'contacts' %}">Контакты</a>
+                    <a href="/admin/" class="button button--ghost button--compact">Редактор</a>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="footer section section--tight">
+            <div class="footer__grid">
+                <div class="footer-brand">
+                    <span class="footer-brand__logo">
+                        {% include "partials/gazprom_wordmark.html" %}
+                    </span>
+                    <p class="eyebrow">Газпром футбольная программа</p>
+                    <h2>{{ club_profile.name|default:"Футбольная команда Газпром" }}</h2>
+                    <p>{{ club_profile.mission|default:"Корпоративная клубная платформа с сильной визуальной дисциплиной, матч-центром и премиальной подачей." }}</p>
+                </div>
+                <div>
+                    <p class="footer__label">Клуб и арена</p>
+                    <ul class="footer__list">
+                        <li>{{ club_profile.city|default:"Томск" }} / {{ club_profile.stadium|default:"Газпром Арена Север" }}</li>
+                        <li><a href="tel:{{ club_profile.phone }}">{{ club_profile.phone|default:"+7 (3822) 00-00-00" }}</a></li>
+                        <li><a href="mailto:{{ club_profile.email }}">{{ club_profile.email|default:"team@gazprom-fc.ru" }}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="footer__label">Ключевые ссылки</p>
+                    <ul class="footer__list">
+                        <li><a href="{% url 'matches' %}">Матч-центр</a></li>
+                        {% if club_profile.ticket_url %}<li><a href="{{ club_profile.ticket_url }}" target="_blank" rel="noreferrer">Билеты</a></li>{% endif %}
+                        {% if club_profile.membership_url %}<li><a href="{{ club_profile.membership_url }}" target="_blank" rel="noreferrer">Абонементы</a></li>{% endif %}
+                        {% if club_profile.shop_url %}<li><a href="{{ club_profile.shop_url }}" target="_blank" rel="noreferrer">Магазин</a></li>{% endif %}
+                        <li><a href="{% url 'media' %}">Новости и галерея</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="footer__label">Служебный вход</p>
+                    <ul class="footer__list">
+                        <li><a href="/admin/">Редакторский вход</a></li>
+                        {% if club_profile.video_url %}<li><a href="{{ club_profile.video_url }}" target="_blank" rel="noreferrer">Официальное видео</a></li>{% endif %}
+                        {% if club_profile.hospitality_url %}<li><a href="{{ club_profile.hospitality_url }}" target="_blank" rel="noreferrer">Hospitality</a></li>{% endif %}
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{% static 'js/site.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

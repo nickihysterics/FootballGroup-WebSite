@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ club_profile.short_name|default:"Gazprom FC" }} | Главная{% endblock %}
+{% block body_class %}home-page{% endblock %}
+
+{% block content %}
+{% with hero_story=featured_news|first hero_media=gallery_items|first spotlight_player=featured_players|first %}
+<section class="premium-hero section section--hero">
+    <div class="premium-hero__grid">
+        <div class="premium-hero__copy" data-reveal>
+            <div class="premium-hero__eyebrow">
+                <p class="eyebrow">{{ club_profile.hero_badge|default:"Газпром футбольная программа" }}</p>
+                <span class="premium-hero__origin">ПАО «Газпром»</span>
+            </div>
+            <div class="premium-hero__headline">
+                <span class="premium-hero__season">2026</span>
+                <h1>{{ club_profile.tagline|default:"Матч-дэй, арена и клубный продукт в подаче уровня большой команды." }}</h1>
+            </div>
+            <p class="premium-hero__lead">
+                {{ club_profile.mission|default:"Клубная платформа строится вокруг следующего матча, домашней арены и сильной медиа-кампании. Каждый первый экран должен продавать посещение, сезонный доступ и клубную эмоцию." }}
+            </p>
+            {% if featured_match %}
+            <div class="premium-pulse">
+                <span class="premium-pulse__label">Следующий матч</span>
+                <strong>{{ club_profile.short_name|default:"Газпром Футбол" }} vs {{ featured_match.opponent }}</strong>
+                <p>{{ featured_match.competition }} · {{ featured_match.start_at|date:"d E Y" }} · {{ featured_match.start_at|time:"H:i" }} · {{ featured_match.venue }}</p>
+                <div class="premium-pulse__footer">
+                    <div class="premium-pulse__countdown" data-kickoff="{{ featured_match.start_at|date:'c' }}"></div>
+                    <a href="{% url 'matches' %}" class="text-link">Открыть матч-центр</a>
+                </div>
+            </div>
+            {% endif %}
+            <div class="premium-hero__actions">
+                {% if club_profile.ticket_url %}
+                <a href="{{ club_profile.ticket_url }}" target="_blank" rel="noreferrer" class="button">Купить билет</a>
+                {% else %}
+                <a href="{% url 'matches' %}" class="button">Матч-центр</a>
+                {% endif %}
+                {% if club_profile.membership_url %}
+                <a href="{{ club_profile.membership_url }}" target="_blank" rel="noreferrer" class="button button--ghost">Абонементы</a>
+                {% endif %}
+                {% if club_profile.shop_url %}
+                <a href="{{ club_profile.shop_url }}" target="_blank" rel="noreferrer" class="button button--ghost">Магазин</a>
+                {% endif %}
+            </div>
+            <div class="premium-hero__metrics">
+                <article class="premium-stat">
+                    <span>Побед</span>
+                    <strong>{{ club_profile.stats_wins|default:18 }}</strong>
+                </article>
+                <article class="premium-stat">
+                    <span>Голы</span>
+                    <strong>{{ club_profile.stats_goals|default:52 }}</strong>
+                </article>
+                <article class="premium-stat">
+                    <span>Сухих матчей</span>
+                    <strong>{{ club_profile.stats_clean_sheets|default:9 }}</strong>
+                </article>
+            </div>
+            <div class="premium-hero__offers">
+                <a href="{% url 'matches' %}" class="premium-offer premium-offer--dark">
+                    <span>Match hub</span>
+                    <strong>Календарь, результаты и весь ритм сезона</strong>
+                    <p>Главный маршрут болельщика должен читаться с первого экрана.</p>
+                </a>
+                <article class="premium-offer">
+                    <span>Домашняя арена</span>
+                    <strong>{{ club_profile.stadium|default:"Газпром Арена" }}</strong>
+                    <p>{{ club_profile.city|default:"Санкт-Петербург" }} · клубный день матча, медиа и 3D-арена как часть главного сценария.</p>
+                </article>
+                <article class="premium-offer premium-offer--light">
+                    <span>Официальная база</span>
+                    {% if club_profile.source_url %}
+                    <strong><a href="{{ club_profile.source_url }}" target="_blank" rel="noreferrer">{{ club_profile.source_name|default:"Клубный источник" }}</a></strong>
+                    {% else %}
+                    <strong>{{ club_profile.source_name|default:"Клубный источник" }}</strong>
+                    {% endif %}
+                    <p>Реальный состав, календарь и клубные публикации на одной витрине.</p>
+                </article>
+            </div>
+        </div>
+        <aside class="premium-hero__visual" data-reveal>
+            <article class="premium-poster">
+                {% if hero_story.cover_url %}
+                <img src="{{ hero_story.cover_url }}" alt="{{ hero_story.title }}">
+                {% elif hero_media.image_url %}
+                <img src="{{ hero_media.image_url }}" alt="{{ hero_media.title }}">
+                {% elif spotlight_player.photo_url %}
+                <img src="{{ spotlight_player.photo_url }}" alt="{{ spotlight_player.full_name }}">
+                {% endif %}
+                <div class="premium-poster__overlay">
+                    <div class="premium-poster__top">
+                        <span class="pill pill--soft">Главная кампания</span>
+                        {% if club_profile.video_url %}
+                        <a href="{{ club_profile.video_url }}" target="_blank" rel="noreferrer" class="premium-poster__play">Видео клуба</a>
+                        {% endif %}
+                    </div>
+                    <div class="premium-poster__body">
+                        <strong>{{ hero_story.title|default:"Матч-дэй как главная история недели" }}</strong>
+                        <p>{{ hero_story.excerpt|default:"Большой экран на главной должен держать одну мощную историю, а не разваливаться на набор равноправных карточек." }}</p>
+                    </div>
+                </div>
+            </article>
+            {% if spotlight_player %}
+            <article class="premium-player-spotlight">
+                <div class="premium-player-spotlight__media">
+                    {% if spotlight_player.photo_url %}
+                    <img src="{{ spotlight_player.photo_url }}" alt="{{ spotlight_player.full_name }}">
+                    {% else %}
+                    <span>{{ spotlight_player.initials }}</span>
+                    {% endif %}
+                </div>
+                <div class="premium-player-spotlight__body">
+                    <span>Игрок в фокусе</span>
+                    <h2>#{{ spotlight_player.number }} {{ spotlight_player.full_name }}</h2>
+                    <p>{{ spotlight_player.get_position_display }} · {{ spotlight_player.compact_profile }}</p>
+                    <div class="premium-player-spotlight__stats">
+                        <div><strong>{{ spotlight_player.matches_for_club }}</strong><span>матчей</span></div>
+                        <div><strong>{{ spotlight_player.minutes_for_club }}</strong><span>минут</span></div>
+                        <div><strong>{{ spotlight_player.goals_for_club }}</strong><span>голов</span></div>
+                    </div>
+                </div>
+            </article>
+            {% endif %}
+            <div class="premium-hero__quickgrid">
+                {% if club_profile.shop_url %}
+                <a href="{{ club_profile.shop_url }}" target="_blank" rel="noreferrer" class="quick-promo quick-promo--brand">
+                    <span>Магазин</span>
+                    <strong>Форма и клубная коллекция</strong>
+                    <p>Коммерческий маршрут не должен теряться за новостями.</p>
+                </a>
+                {% endif %}
+                {% if club_profile.hospitality_url %}
+                <a href="{{ club_profile.hospitality_url }}" target="_blank" rel="noreferrer" class="quick-promo">
+                    <span>Hospitality</span>
+                    <strong>Премиальный матч-дэй</strong>
+                    <p>Отдельный вход для корпоративной и бизнес-аудитории.</p>
+                </a>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+</section>
+{% endwith %}
+
+<section class="section section--tight">
+    <div id="matchday-react-root" data-reveal>
+        <noscript>
+            <div class="matchday-deck">
+                <div class="matchday-shell">
+                    <div class="matchday-shell__top">
+                        <article class="matchday-headliner">
+                            <p class="eyebrow">Matchday centre</p>
+                            <div class="matchday-headliner__actions">
+                                <a href="{% url 'matches' %}" class="button">Открыть матч-центр</a>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </noscript>
+    </div>
+    {{ matchday_island_payload|json_script:"matchday-island-data" }}
+</section>
+
+<section class="section immersive-arena">
+    <div class="section-heading" data-reveal>
+        <p class="eyebrow">3D Arena</p>
+        <h2>Сцена домашней арены встроена в интерфейс как премиальный стадионный блок</h2>
+        <p class="section-lead">3D здесь работает на арену, табло, следующий матч и атмосферу дня игры. Он больше не выглядит отдельным экспериментом и подчинён всей композиции главной.</p>
+    </div>
+    <div class="hero__stage hero__stage--immersive" data-reveal>
+        <aside class="immersive-arena__panel">
+            <div class="immersive-arena__panel-head">
+                <span class="pill">Домашняя площадка</span>
+                <h3>{{ club_profile.stadium|default:"Газпром Арена" }}</h3>
+                <p>{{ club_profile.city|default:"Санкт-Петербург" }} · витрина матча, медиа и big-match presentation на единой сцене.</p>
+            </div>
+            <div class="immersive-arena__facts">
+                <div>
+                    <span>Город</span>
+                    <strong>{{ club_profile.city|default:"Санкт-Петербург" }}</strong>
+                </div>
+                <div>
+                    <span>Источник</span>
+                    {% if club_profile.source_url %}
+                    <strong><a href="{{ club_profile.source_url }}" target="_blank" rel="noreferrer">{{ club_profile.source_name|default:"Официальный контур" }}</a></strong>
+                    {% else %}
+                    <strong>{{ club_profile.source_name|default:"Официальный контур" }}</strong>
+                    {% endif %}
+                </div>
+                <div>
+                    <span>Видео</span>
+                    {% if club_profile.video_url %}
+                    <strong><a href="{{ club_profile.video_url }}" target="_blank" rel="noreferrer">Открыть видеоархив</a></strong>
+                    {% else %}
+                    <strong><a href="{% url 'media' %}">Открыть медиа</a></strong>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hero-lineup hero-lineup--immersive">
+                <div class="hero-lineup__title">Игроки в фокусе</div>
+                <div class="hero-lineup__rail">
+                    {% for player in lineup_players %}
+                    <article class="hero-player">
+                        <div class="hero-player__photo">
+                            {% if player.photo_url %}
+                            <img src="{{ player.photo_url }}" alt="{{ player.full_name }}">
+                            {% else %}
+                            <span>{{ player.initials }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span>#{{ player.number }} · {{ player.get_position_display }}</span>
+                            <strong>{{ player.full_name }}</strong>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+        <div class="scene-band__title">
+            <span class="scene-band__kicker">Домашняя арена</span>
+            <strong>{{ club_profile.stadium|default:"Газпром Арена" }}</strong>
+            <small>{{ club_profile.city|default:"Санкт-Петербург" }}</small>
+        </div>
+        {% if latest_result %}
+        <article class="hero-scoreboard">
+            <div class="hero-scoreboard__head">
+                <span class="pill">Последний матч</span>
+                <small class="hero-scoreboard__status"><span class="live-dot"></span>{{ latest_result.competition }}</small>
+            </div>
+            <div class="hero-scoreboard__teams">
+                <div class="hero-scoreboard__team">
+                    <span class="hero-scoreboard__abbr">{{ club_profile.short_name|default:"Газпром Футбол" }}</span>
+                    <strong>{{ latest_result.score_for }}</strong>
+                </div>
+                <div class="hero-scoreboard__divider">:</div>
+                <div class="hero-scoreboard__team hero-scoreboard__team--right">
+                    <span class="hero-scoreboard__abbr">{{ latest_result.opponent }}</span>
+                    <strong>{{ latest_result.score_against }}</strong>
+                </div>
+            </div>
+            <p>{{ latest_result.summary }}</p>
+            <div class="hero-scoreboard__footer">
+                <span>{{ latest_result.start_at|date:"d E Y" }}</span>
+                {% if latest_result.source_url %}
+                <a href="{{ latest_result.source_url }}" target="_blank" rel="noreferrer">Протокол матча</a>
+                {% endif %}
+            </div>
+        </article>
+        {% endif %}
+        {% if featured_match %}
+        <article class="hero-fixture">
+            <span class="pill">Ближайшая игра</span>
+            <strong>{{ club_profile.short_name|default:"Газпром Футбол" }} vs {{ featured_match.opponent }}</strong>
+            <p>{{ featured_match.competition }}</p>
+            <small>{{ featured_match.start_at|date:"d E" }} · {{ featured_match.start_at|time:"H:i" }} · {% if featured_match.city %}{{ featured_match.city }} · {% endif %}{{ featured_match.venue }}</small>
+            <a href="{% url 'matches' %}" class="hero-fixture__link">Весь календарь</a>
+        </article>
+        {% endif %}
+        <div class="hero-ticker">
+            <div class="hero-ticker__track">
+                <span class="hero-ticker__label">Лента клуба</span>
+                {% for news in ticker_news %}
+                <span>{{ news.title }}</span>
+                {% endfor %}
+                <span class="hero-ticker__label">Лента клуба</span>
+                {% for news in ticker_news %}
+                <span>{{ news.title }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="hero__glow"></div>
+        <div class="hero__scene-viewport" aria-hidden="true">
+            <canvas id="hero-ball-scene" aria-hidden="true"></canvas>
+        </div>
+    </div>
+</section>
+
+<section class="section commerce-ribbon">
+    <div class="section-heading" data-reveal>
+        <p class="eyebrow">Коммерческий слой</p>
+        <h2>Продажа посещения и клубного продукта должна быть встроена в архитектуру главной</h2>
+        <p class="section-lead">Сильные футбольные сайты продают не через одну кнопку в меню, а через повторяющиеся премиальные офферы с разным входом для билетов, сезона, мерча и hospitality.</p>
+    </div>
+    <div class="commerce-ribbon__grid">
+        {% if club_profile.ticket_url %}
+        <a href="{{ club_profile.ticket_url }}" target="_blank" rel="noreferrer" class="commerce-card commerce-card--hero" data-reveal>
+            <span>Tickets</span>
+            <h3>Билеты на ближайший матч</h3>
+            <p>Прямой вход в покупку, когда пользователь уже видит соперника, арену и ритм дня игры.</p>
+        </a>
+        {% endif %}
+        {% if club_profile.membership_url %}
+        <a href="{{ club_profile.membership_url }}" target="_blank" rel="noreferrer" class="commerce-card commerce-card--sky" data-reveal>
+            <span>Membership</span>
+            <h3>Абонементы и сезонные предложения</h3>
+            <p>Второй по значимости коммерческий маршрут, который работает на возвращаемость аудитории.</p>
+        </a>
+        {% endif %}
+        {% if club_profile.shop_url %}
+        <a href="{{ club_profile.shop_url }}" target="_blank" rel="noreferrer" class="commerce-card commerce-card--light" data-reveal>
+            <span>Shop</span>
+            <h3>Форма и клубная коллекция</h3>
+            <p>Мерч должен выглядеть как полноценный брендовый продукт, а не как второстепенный линк.</p>
+        </a>
+        {% endif %}
+        {% if club_profile.hospitality_url %}
+        <a href="{{ club_profile.hospitality_url }}" target="_blank" rel="noreferrer" class="commerce-card commerce-card--outline" data-reveal>
+            <span>Hospitality</span>
+            <h3>Премиальные пакеты матча</h3>
+            <p>Отдельная дорожка для high-value аудитории с дорогой и чистой подачей.</p>
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section section--contrast">
+    <div class="section-heading" data-reveal>
+        <p class="eyebrow">Состав</p>
+        <h2>Игроки поданы как клубная витрина, а не как набор одинаковых каталоговых карточек</h2>
+        <p class="section-lead">Разная крупность блоков делает состав дороже визуально: один главный герой и supporting players рядом, без ощущения однообразной сетки.</p>
+    </div>
+    <div class="roster-editorial">
+        {% if spotlight_player %}
+        <article class="roster-feature" data-reveal>
+            <div class="roster-feature__media">
+                {% if spotlight_player.photo_url %}
+                <img src="{{ spotlight_player.photo_url }}" alt="{{ spotlight_player.full_name }}">
+                {% else %}
+                <span>{{ spotlight_player.initials }}</span>
+                {% endif %}
+            </div>
+            <div class="roster-feature__body">
+                <span class="pill">Игрок в фокусе</span>
+                <h3>#{{ spotlight_player.number }} {{ spotlight_player.full_name }}</h3>
+                <p>{{ spotlight_player.bio }}</p>
+                <div class="data-cluster">
+                    <span>{{ spotlight_player.get_position_display }}</span>
+                    <span>{{ spotlight_player.compact_profile }}</span>
+                    {% if spotlight_player.previous_club %}<span>Предыдущий клуб: {{ spotlight_player.previous_club }}</span>{% endif %}
+                </div>
+                <div class="stat-strip">
+                    <div><strong>{{ spotlight_player.matches_for_club }}</strong><span>матчей</span></div>
+                    <div><strong>{{ spotlight_player.minutes_for_club }}</strong><span>минут</span></div>
+                    <div><strong>{{ spotlight_player.goals_for_club }}</strong><span>голов</span></div>
+                </div>
+            </div>
+        </article>
+        {% endif %}
+        <div class="roster-editorial__stack">
+            {% for player in featured_players|slice:"1:4" %}
+            <article class="roster-mini" data-reveal>
+                <div class="roster-mini__media">
+                    {% if player.photo_url %}
+                    <img src="{{ player.photo_url }}" alt="{{ player.full_name }}">
+                    {% else %}
+                    <span>{{ player.initials }}</span>
+                    {% endif %}
+                </div>
+                <div class="roster-mini__body">
+                    <span>#{{ player.number }} · {{ player.get_position_display }}</span>
+                    <h3>{{ player.full_name }}</h3>
+                    <p>{{ player.compact_profile }}</p>
+                    <div class="roster-mini__stats">
+                        <div><strong>{{ player.matches_for_club }}</strong><span>матчей</span></div>
+                        <div><strong>{{ player.goals_for_club }}</strong><span>голов</span></div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section media-editorial">
+    <div class="section-heading" data-reveal>
+        <p class="eyebrow">Истории клуба</p>
+        <h2>Медиа-подача выстроена как editorial front page, а не как равномерный набор плиток</h2>
+        <p class="section-lead">Главная история задаёт тон, supporting content поддерживает её, а медиастена работает как атмосфера и доказательство живого клуба.</p>
+    </div>
+    <div class="story-grid">
+        {% with lead_story=featured_news|first %}
+        <article class="story-feature" data-reveal>
+            {% if lead_story.cover_url %}
+            <div class="story-feature__media">
+                <img src="{{ lead_story.cover_url }}" alt="{{ lead_story.title }}">
+            </div>
+            {% elif hero_media.image_url %}
+            <div class="story-feature__media">
+                <img src="{{ hero_media.image_url }}" alt="{{ hero_media.title }}">
+            </div>
+            {% endif %}
+            <div class="story-feature__body">
+                <span class="pill pill--soft">Главная публикация</span>
+                <h3>{{ lead_story.title|default:"Клубная история недели" }}</h3>
+                <p>{{ lead_story.excerpt|default:"Крупная медиа-история должна быть визуальным центром второй половины главной." }}</p>
+                {% if lead_story.source_url %}
+                <a href="{{ lead_story.source_url }}" target="_blank" rel="noreferrer" class="text-link">{{ lead_story.source_name|default:"Открыть материал" }}</a>
+                {% endif %}
+            </div>
+        </article>
+        {% endwith %}
+        <div class="story-stack">
+            {% for news in featured_news|slice:"1:3" %}
+            <article class="story-card" data-reveal>
+                <span>{{ news.published_at|date:"d.m.Y" }}</span>
+                <h3>{{ news.title }}</h3>
+                <p>{{ news.excerpt }}</p>
+                {% if news.source_url %}
+                <a href="{{ news.source_url }}" target="_blank" rel="noreferrer" class="text-link">{{ news.source_name|default:"Источник" }}</a>
+                {% endif %}
+            </article>
+            {% endfor %}
+            <article class="story-card story-card--accent" data-reveal>
+                <span>Медиа и видео</span>
+                <h3>Официальные ролики и публикации вынесены в отдельный сильный маршрут</h3>
+                <p>Видео и медиа должны быть так же заметны, как билеты и календарь, иначе клубный сайт теряет эмоциональный вес.</p>
+                {% if club_profile.video_url %}
+                <a href="{{ club_profile.video_url }}" target="_blank" rel="noreferrer" class="text-link">Открыть видеоархив</a>
+                {% else %}
+                <a href="{% url 'media' %}" class="text-link">Открыть медиа</a>
+                {% endif %}
+            </article>
+        </div>
+    </div>
+    <div class="trophy-strip">
+        {% for trophy in trophies %}
+        <article class="trophy-card" data-reveal>
+            <span>{{ trophy.season }}</span>
+            <h3>{{ trophy.title }}</h3>
+            <p>{{ trophy.description }}</p>
+        </article>
+        {% endfor %}
+    </div>
+    <div class="media-wall">
+        {% for item in gallery_items %}
+        <article class="media-tile" data-reveal>
+            {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.title }}">
+            {% endif %}
+            <div class="media-tile__overlay">
+                <span>{{ item.accent }}</span>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.caption }}</p>
+                {% if item.source_url %}
+                <a href="{{ item.source_url }}" target="_blank" rel="noreferrer" class="media-link">Открыть источник</a>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="module" src="{% static 'dist/matchday-island.js' %}"></script>
+<script type="module" src="{% static 'js/hero-scene.js' %}"></script>
+<script type="module" src="{% static 'js/live-hero.js' %}"></script>
+{% endblock %}
