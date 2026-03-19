@@ -1,0 +1,66 @@
+import { LoaderCircle } from "lucide-react";
+import { motion } from "motion/react";
+
+export default function RouteLoadingState({ route }) {
+  return (
+    <section className="mx-auto w-full max-w-[1360px] px-4 py-6">
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className="space-y-6"
+      >
+        <div className="overflow-hidden rounded-[36px] border border-white/80 bg-white/82 p-8 shadow-[0_30px_80px_rgba(8,31,61,0.10)] backdrop-blur">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+              <LoaderCircle className="h-6 w-6 animate-spin" strokeWidth={1.8} />
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
+                Загрузка
+              </p>
+              <h2 className="text-2xl font-semibold text-slate-950">
+                {route?.label ? `Открываем раздел «${route.label}»` : "Открываем страницу"}
+              </h2>
+            </div>
+          </div>
+
+          <div className="mt-8 overflow-hidden rounded-full bg-slate-100">
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.4,
+                ease: "linear",
+              }}
+              className="h-2 w-1/3 rounded-full bg-[linear-gradient(90deg,rgba(15,117,219,0),rgba(15,117,219,0.95),rgba(99,208,255,0))]"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr]">
+          <div className="space-y-4 rounded-[36px] border border-white/80 bg-white/72 p-6 shadow-[0_24px_64px_rgba(8,31,61,0.08)] backdrop-blur">
+            <div className="h-4 w-28 animate-pulse rounded-full bg-slate-200" />
+            <div className="h-12 w-[72%] animate-pulse rounded-[18px] bg-slate-200" />
+            <div className="h-5 w-full animate-pulse rounded-full bg-slate-200" />
+            <div className="h-5 w-[92%] animate-pulse rounded-full bg-slate-200" />
+            <div className="h-5 w-[84%] animate-pulse rounded-full bg-slate-200" />
+
+            <div className="grid gap-3 pt-3 md:grid-cols-3">
+              <div className="h-28 animate-pulse rounded-[24px] bg-slate-200" />
+              <div className="h-28 animate-pulse rounded-[24px] bg-slate-200" />
+              <div className="h-28 animate-pulse rounded-[24px] bg-slate-200" />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="h-52 animate-pulse rounded-[32px] border border-white/80 bg-white/72 shadow-[0_24px_64px_rgba(8,31,61,0.08)] backdrop-blur" />
+            <div className="h-52 animate-pulse rounded-[32px] border border-white/80 bg-white/72 shadow-[0_24px_64px_rgba(8,31,61,0.08)] backdrop-blur" />
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
