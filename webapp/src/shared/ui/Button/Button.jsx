@@ -5,9 +5,9 @@ import { cn } from "@/shared/lib/cn.js";
 
 const variantClassMap = {
   primary:
-    "border-transparent bg-[linear-gradient(180deg,#1790f4_0%,#0d4ea5_100%)] text-white shadow-[0_18px_36px_rgba(15,117,219,0.22)] hover:-translate-y-0.5 hover:shadow-[0_22px_42px_rgba(15,117,219,0.28)]",
+    "border border-transparent bg-[linear-gradient(180deg,#1f95ff_0%,#0d61c2_100%)] text-white shadow-[0_16px_34px_rgba(13,97,194,.24)] hover:-translate-y-0.5 hover:shadow-[0_20px_38px_rgba(13,97,194,.30)] [&>svg]:!text-white [&>span]:!text-white",
   ghost:
-    "border border-[rgba(10,44,94,0.12)] bg-white/80 text-slate-900 hover:-translate-y-0.5 hover:border-[rgba(10,44,94,0.18)] hover:bg-white",
+    "border border-[#d9e5f2] bg-white text-[#102544] shadow-[0_8px_18px_rgba(8,31,61,.05)] hover:-translate-y-0.5 hover:border-[#c4d8ee] hover:bg-[#fbfdff]",
   dark:
     "border border-transparent bg-slate-950 text-white hover:-translate-y-0.5 hover:bg-slate-800",
   soft:
@@ -15,7 +15,7 @@ const variantClassMap = {
 };
 
 const sizeClassMap = {
-  sm: "min-h-10 px-4 text-sm",
+  sm: "min-h-10 px-4 text-[13px]",
   md: "min-h-[52px] px-5 text-sm",
   lg: "min-h-14 px-6 text-base",
 };
@@ -29,6 +29,7 @@ const Button = forwardRef(function Button(
     rightIcon: RightIcon,
     loading = false,
     fullWidth = false,
+    iconOnly = false,
     className,
     children,
     disabled,
@@ -38,6 +39,7 @@ const Button = forwardRef(function Button(
   ref,
 ) {
   const isButton = Comp === "button";
+  const hasSideIcons = Boolean(LeftIcon || RightIcon);
 
   return (
     <Comp
@@ -49,14 +51,26 @@ const Button = forwardRef(function Button(
         sizeClassMap[size] || sizeClassMap.md,
         variantClassMap[variant] || variantClassMap.primary,
         fullWidth && "w-full",
+        iconOnly && "aspect-square px-0",
         className,
       )}
       {...props}
     >
-      {loading ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.9} /> : null}
-      {!loading && LeftIcon ? <LeftIcon className="h-4 w-4 shrink-0" strokeWidth={1.9} /> : null}
-      <span>{children}</span>
-      {!loading && RightIcon ? <RightIcon className="h-4 w-4 shrink-0" strokeWidth={1.9} /> : null}
+      {loading ? (
+        <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.9} />
+      ) : null}
+
+      {!loading && LeftIcon ? (
+        <LeftIcon className="h-4 w-4 shrink-0 text-current" strokeWidth={1.9} />
+      ) : null}
+
+      {(!iconOnly || !hasSideIcons) && children ? (
+        <span className="text-current">{children}</span>
+      ) : null}
+
+      {!loading && RightIcon ? (
+        <RightIcon className="h-4 w-4 shrink-0 text-current" strokeWidth={1.9} />
+      ) : null}
     </Comp>
   );
 });
