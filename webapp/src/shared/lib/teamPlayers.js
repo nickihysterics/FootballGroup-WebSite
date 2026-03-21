@@ -1,0 +1,475 @@
+const POSITION_ORDER = {
+  GK: 1,
+  DF: 2,
+  MF: 3,
+  FW: 4,
+};
+
+function clamp(value, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
+function safeNumber(value, fallback = 0) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+export { POSITION_ORDER };
+
+export function resolvePositionLabel(position) {
+  const raw = String(position || "").toUpperCase();
+
+  if (raw === "GK") return "Вратарь";
+  if (raw === "DF") return "Защитник";
+  if (raw === "MF") return "Полузащитник";
+  if (raw === "FW") return "Нападающий";
+
+  return position || "Игрок";
+}
+
+export function resolvePositionPlural(position) {
+  const raw = String(position || "").toUpperCase();
+
+  if (raw === "GK") return "Вратари";
+  if (raw === "DF") return "Защитники";
+  if (raw === "MF") return "Полузащитники";
+  if (raw === "FW") return "Нападающие";
+
+  return "Игроки";
+}
+
+export function resolvePositionKey(value) {
+  const raw = String(value || "").toUpperCase();
+
+  if (raw.includes("GK") || raw.includes("ВРАТ")) return "GK";
+  if (raw.includes("DF") || raw.includes("ЗАЩ")) return "DF";
+  if (raw.includes("MF") || raw.includes("ПОЛУ")) return "MF";
+  if (raw.includes("FW") || raw.includes("НАП")) return "FW";
+
+  return raw || "FW";
+}
+
+export function initialsOf(name) {
+  return (
+    String(name || "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "?"
+  );
+}
+
+export function resolvePlayerSlug(player) {
+  if (player?.slug) return player.slug;
+  if (player?.id) return String(player.id);
+
+  const sourceTail = String(player?.source_url || "")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+
+  if (sourceTail) return sourceTail;
+  if (player?.number) return `player-${player.number}`;
+
+  return `player-${String(player?.full_name || "unknown")
+    .toLowerCase()
+    .replace(/\s+/g, "-")}`;
+}
+
+export function formatBirthDateRu(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+export function normalizeTeamPlayer(player) {
+  if (!player) return null;
+
+  return {
+    ...player,
+    full_name: player.full_name || "Игрок",
+    slug: player.slug || resolvePlayerSlug(player),
+    photo_url: player.photo_url || player.remote_photo_url || "",
+    number: player.number ?? "",
+    position: resolvePositionKey(player.position),
+    position_label:
+      player.position_label || resolvePositionLabel(player.position),
+    matches_for_club: player.matches_for_club ?? 0,
+    minutes_for_club: player.minutes_for_club ?? 0,
+    goals_for_club: player.goals_for_club ?? 0,
+    yellow_cards: player.yellow_cards ?? 0,
+    red_cards: player.red_cards ?? 0,
+    citizenship: player.citizenship || "",
+    previous_club: player.previous_club || "—",
+    birth_date_label:
+      player.birth_date_label || formatBirthDateRu(player.birth_date),
+    height_cm: player.height_cm ?? null,
+    weight_kg: player.weight_kg ?? null,
+    age: player.age ?? null,
+    place_of_birth: player.place_of_birth || player.hometown || "",
+    initials: player.initials || initialsOf(player.full_name),
+    captain: Boolean(player.captain),
+    featured: Boolean(player.featured),
+    achievements: player.achievements || "",
+    sort_order: player.sort_order ?? 999,
+  };
+}
+
+export function collectAllPlayers(data) {
+  const rawPlayers =
+    Array.isArray(data?.groups) && data.groups.length
+      ? data.groups.flatMap((group) => group.players || [])
+      : Array.isArray(data?.players)
+        ? data.players
+        : [];
+
+  return rawPlayers.map(normalizeTeamPlayer).filter(Boolean);
+}
+
+export function buildVisibleGroups(data) {
+  const rawGroups =
+    Array.isArray(data?.groups) && data.groups.length ? data.groups : null;
+
+  if (rawGroups) {
+    return rawGroups
+      .map((group, index) => {
+        const resolvedKey = resolvePositionKey(
+          group?.key || group?.label || group?.players?.[0]?.position,
+        );
+
+        return {
+          ...group,
+          key: resolvedKey,
+          label: group?.label || resolvePositionLabel(resolvedKey),
+          anchorId: `team-group-${resolvedKey.toLowerCase()}-${index + 1}`,
+          players: Array.isArray(group?.players)
+            ? group.players.map(normalizeTeamPlayer).filter(Boolean)
+            : [],
+        };
+      })
+      .filter((group) => group.players.length > 0)
+      .sort(
+        (a, b) =>
+          (POSITION_ORDER[resolvePositionKey(a.key)] || 99) -
+          (POSITION_ORDER[resolvePositionKey(b.key)] || 99),
+      );
+  }
+
+  const players = collectAllPlayers(data);
+  const bucket = new Map();
+
+  players.forEach((player) => {
+    const key = resolvePositionKey(player.position);
+
+    if (!bucket.has(key)) {
+      bucket.set(key, {
+        key,
+        label: resolvePositionLabel(key),
+        anchorId: `team-group-${key.toLowerCase()}`,
+        players: [],
+      });
+    }
+
+    bucket.get(key).players.push(player);
+  });
+
+  return [...bucket.values()]
+    .map((group) => ({
+      ...group,
+      players: [...group.players].sort(
+        (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999),
+      ),
+    }))
+    .sort(
+      (a, b) =>
+        (POSITION_ORDER[resolvePositionKey(a.key)] || 99) -
+        (POSITION_ORDER[resolvePositionKey(b.key)] || 99),
+    );
+}
+
+export function findCaptain(data, players = []) {
+  return normalizeTeamPlayer(data?.captain) || players.find((player) => player?.captain) || null;
+}
+
+export function getAveragePlayerAge(players = []) {
+  const values = players
+    .map((player) => Number(player.age))
+    .filter((value) => Number.isFinite(value) && value > 0);
+
+  if (!values.length) return null;
+
+  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+export function buildRelatedPlayers(players, currentPlayer, limit = 3) {
+  return players
+    .filter(
+      (item) =>
+        item.slug !== currentPlayer.slug &&
+        resolvePositionKey(item.position) === resolvePositionKey(currentPlayer.position),
+    )
+    .sort((a, b) => {
+      const featuredDelta = Number(Boolean(b.featured)) - Number(Boolean(a.featured));
+      if (featuredDelta !== 0) return featuredDelta;
+
+      const captainDelta = Number(Boolean(b.captain)) - Number(Boolean(a.captain));
+      if (captainDelta !== 0) return captainDelta;
+
+      return (a.sort_order ?? 999) - (b.sort_order ?? 999);
+    })
+    .slice(0, limit);
+}
+
+export function getGroupMeta(group) {
+  const key = resolvePositionKey(group?.key || group?.label);
+
+  if (key === "GK") {
+    return {
+      short: "GK",
+      label: "Вратарь",
+      chipClass:
+        "border-sky-200/90 bg-white text-sky-700 shadow-[0_12px_24px_rgba(59,130,246,.08)] hover:border-sky-300 hover:bg-sky-50/75",
+      iconWrapClass: "bg-sky-50 text-sky-700 ring-1 ring-sky-200/80",
+      countClass: "bg-sky-600 text-white",
+      lineClass: "from-sky-500 via-cyan-400 to-transparent",
+    };
+  }
+
+  if (key === "DF") {
+    return {
+      short: "DF",
+      label: "Защитник",
+      chipClass:
+        "border-indigo-200/90 bg-white text-indigo-700 shadow-[0_12px_24px_rgba(99,102,241,.08)] hover:border-indigo-300 hover:bg-indigo-50/70",
+      iconWrapClass: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/80",
+      countClass: "bg-indigo-600 text-white",
+      lineClass: "from-indigo-500 via-blue-400 to-transparent",
+    };
+  }
+
+  if (key === "MF") {
+    return {
+      short: "MF",
+      label: "Полузащитник",
+      chipClass:
+        "border-violet-200/90 bg-white text-violet-700 shadow-[0_12px_24px_rgba(139,92,246,.08)] hover:border-violet-300 hover:bg-violet-50/70",
+      iconWrapClass: "bg-violet-50 text-violet-700 ring-1 ring-violet-200/80",
+      countClass: "bg-violet-600 text-white",
+      lineClass: "from-violet-500 via-fuchsia-400 to-transparent",
+    };
+  }
+
+  return {
+    short: "FW",
+    label: "Нападающий",
+    chipClass:
+      "border-amber-200/90 bg-white text-amber-700 shadow-[0_12px_24px_rgba(245,158,11,.08)] hover:border-amber-300 hover:bg-amber-50/70",
+    iconWrapClass: "bg-amber-50 text-amber-700 ring-1 ring-amber-200/80",
+    countClass: "bg-amber-500 text-white",
+    lineClass: "from-amber-500 via-orange-400 to-transparent",
+  };
+}
+
+export function scrollToAnchor(anchorId, offset = 110) {
+  const element = document.getElementById(anchorId);
+  if (!element) return;
+
+  const top = element.getBoundingClientRect().top + window.scrollY - offset;
+
+  window.scrollTo({
+    top,
+    behavior: "smooth",
+  });
+}
+
+export function getPlayerTone(player) {
+  const raw = `${player?.position_label || ""} ${player?.position || ""}`.toLowerCase();
+
+  if (raw.includes("gk") || raw.includes("врат")) {
+    return {
+      heroBg:
+        "bg-[linear-gradient(180deg,rgba(248,252,255,.98)_0%,rgba(234,245,255,.98)_45%,rgba(226,239,252,.98)_100%)]",
+      posterBg: "bg-[linear-gradient(180deg,#eef8ff_0%,#dcefff_100%)]",
+      line: "from-sky-500 via-cyan-400 to-sky-300",
+      chipClass: "border-sky-200/80 bg-white/88 text-sky-700",
+      strongChipClass: "border-sky-600 bg-sky-600 text-white",
+      ringClass: "border-sky-500/14",
+      glowClass: "bg-sky-300/18",
+      numberClass: "text-sky-700/[0.08]",
+      captainChip: "border-sky-200 bg-white/90 text-sky-700",
+      poster: "bg-[linear-gradient(180deg,#eef8ff_0%,#dcefff_100%)]",
+    };
+  }
+
+  if (raw.includes("df") || raw.includes("защит")) {
+    return {
+      heroBg:
+        "bg-[linear-gradient(180deg,rgba(250,252,255,.98)_0%,rgba(240,245,255,.98)_45%,rgba(231,239,255,.98)_100%)]",
+      posterBg: "bg-[linear-gradient(180deg,#f1f4ff_0%,#dde6ff_100%)]",
+      line: "from-indigo-500 via-blue-500 to-sky-400",
+      chipClass: "border-indigo-200/80 bg-white/88 text-indigo-700",
+      strongChipClass: "border-indigo-600 bg-indigo-600 text-white",
+      ringClass: "border-indigo-500/14",
+      glowClass: "bg-indigo-300/16",
+      numberClass: "text-indigo-700/[0.08]",
+      captainChip: "border-indigo-200 bg-white/90 text-indigo-700",
+      poster: "bg-[linear-gradient(180deg,#f1f4ff_0%,#dde6ff_100%)]",
+    };
+  }
+
+  if (raw.includes("mf") || raw.includes("полузащит")) {
+    return {
+      heroBg:
+        "bg-[linear-gradient(180deg,rgba(251,250,255,.98)_0%,rgba(245,240,255,.98)_45%,rgba(238,232,255,.98)_100%)]",
+      posterBg: "bg-[linear-gradient(180deg,#f5f1ff_0%,#ece3ff_100%)]",
+      line: "from-violet-500 via-fuchsia-400 to-sky-300",
+      chipClass: "border-violet-200/80 bg-white/88 text-violet-700",
+      strongChipClass: "border-violet-600 bg-violet-600 text-white",
+      ringClass: "border-violet-500/14",
+      glowClass: "bg-violet-300/16",
+      numberClass: "text-violet-700/[0.08]",
+      captainChip: "border-violet-200 bg-white/90 text-violet-700",
+      poster: "bg-[linear-gradient(180deg,#f5f1ff_0%,#ece3ff_100%)]",
+    };
+  }
+
+  return {
+    heroBg:
+      "bg-[linear-gradient(180deg,rgba(255,252,247,.98)_0%,rgba(255,246,234,.98)_45%,rgba(255,238,214,.98)_100%)]",
+    posterBg: "bg-[linear-gradient(180deg,#fff8ef_0%,#ffeacf_100%)]",
+    line: "from-amber-500 via-orange-400 to-yellow-300",
+    chipClass: "border-amber-200/80 bg-white/88 text-amber-700",
+    strongChipClass: "border-amber-500 bg-amber-500 text-white",
+    ringClass: "border-amber-500/16",
+    glowClass: "bg-amber-300/18",
+    numberClass: "text-amber-700/[0.08]",
+    captainChip: "border-amber-200 bg-white/90 text-amber-700",
+    poster: "bg-[linear-gradient(180deg,#fff8ef_0%,#ffeacf_100%)]",
+  };
+}
+
+export function getPlayerHeroStats(player) {
+  const position = resolvePositionKey(player.position);
+
+  if (position === "GK") {
+    return [
+      { label: "Матчи", value: player.matches_for_club },
+      { label: "Минуты", value: player.minutes_for_club },
+      { label: "Рост", value: player.height_cm ? `${player.height_cm} см` : "—" },
+    ];
+  }
+
+  return [
+    { label: "Матчи", value: player.matches_for_club },
+    { label: "Минуты", value: player.minutes_for_club },
+    { label: "Голы", value: player.goals_for_club },
+  ];
+}
+
+export function buildPlayerTraits(player) {
+  const position = resolvePositionKey(player.position);
+  const matches = safeNumber(player.matches_for_club);
+  const minutes = safeNumber(player.minutes_for_club);
+  const goals = safeNumber(player.goals_for_club);
+  const yellow = safeNumber(player.yellow_cards);
+  const red = safeNumber(player.red_cards);
+  const age = safeNumber(player.age, 26);
+  const height = safeNumber(player.height_cm, 180);
+  const weight = safeNumber(player.weight_kg, 75);
+
+  const minutesBoost = minutes / 280;
+  const matchesBoost = matches / 9;
+  const goalBoost = goals * 1.8;
+  const ageSpeedAdjust = age <= 23 ? 8 : age <= 28 ? 5 : age <= 32 ? 1 : -4;
+  const disciplinePenalty = yellow * 1.6 + red * 10;
+  const sizeBoost = (height - 175) * 0.45 + (weight - 72) * 0.25;
+
+  if (position === "GK") {
+    return [
+      { label: "Реакция", value: clamp(72 + minutesBoost + ageSpeedAdjust * 0.35, 58, 97) },
+      { label: "Позиция", value: clamp(68 + matchesBoost + minutes / 420, 58, 96) },
+      { label: "Игра руками", value: clamp(70 + matchesBoost, 55, 96) },
+      { label: "Игра ногами", value: clamp(58 + minutes / 520 + goalBoost * 0.2, 46, 88) },
+      { label: "Хладнокровие", value: clamp(74 + matches / 14 - disciplinePenalty * 0.18, 50, 95) },
+    ];
+  }
+
+  if (position === "DF") {
+    return [
+      { label: "Скорость", value: clamp(66 + ageSpeedAdjust + (180 - Math.abs(height - 180)) * 0.2, 54, 92) },
+      { label: "Выносливость", value: clamp(68 + minutesBoost + matches / 15, 56, 96) },
+      { label: "Отбор", value: clamp(72 + matchesBoost + sizeBoost * 0.35, 58, 97) },
+      { label: "Мощь", value: clamp(70 + sizeBoost, 56, 95) },
+      { label: "Дисциплина", value: clamp(88 - disciplinePenalty + matches / 28, 40, 94) },
+    ];
+  }
+
+  if (position === "MF") {
+    return [
+      { label: "Скорость", value: clamp(68 + ageSpeedAdjust, 55, 93) },
+      { label: "Выносливость", value: clamp(70 + minutesBoost + matches / 16, 58, 97) },
+      { label: "Техника", value: clamp(72 + goalBoost * 0.35, 58, 97) },
+      { label: "Креативность", value: clamp(70 + goalBoost * 0.3 + matches / 18, 56, 95) },
+      { label: "Игровой интеллект", value: clamp(72 + matches / 10 + age * 0.15, 58, 96) },
+    ];
+  }
+
+  return [
+    { label: "Скорость", value: clamp(72 + ageSpeedAdjust, 58, 96) },
+    { label: "Выносливость", value: clamp(66 + minutesBoost + matches / 16, 56, 95) },
+    { label: "Удар", value: clamp(72 + goalBoost, 55, 98) },
+    { label: "Резкость", value: clamp(70 + goalBoost * 0.4 + ageSpeedAdjust * 0.5, 56, 96) },
+    { label: "Мощь", value: clamp(66 + sizeBoost * 0.8, 54, 94) },
+  ];
+}
+
+export function buildPlayerBiography(player) {
+  const birthInfo =
+    player.birth_date_label !== "—"
+      ? `Родился ${player.birth_date_label}`
+      : "Дата рождения не указана";
+
+  const birthPlace = player.place_of_birth ? ` в ${player.place_of_birth}` : "";
+  const nationality =
+    player.citizenship && player.citizenship !== "—"
+      ? ` Представляет ${player.citizenship}.`
+      : "";
+  const previousClub =
+    player.previous_club && player.previous_club !== "—"
+      ? ` До перехода в клуб выступал за ${player.previous_club}.`
+      : "";
+  const shirtNumber = player.number ? ` Играет под номером #${player.number}.` : "";
+  const captain =
+    player.captain
+      ? " Является одним из лидеров команды и носит капитанскую повязку."
+      : "";
+
+  let roleText = " Игрок первой команды и важная часть текущей обоймы клуба.";
+
+  if (player.position === "GK") {
+    roleText =
+      " Вратарь, который отвечает за надёжность последнего рубежа, игру на выходах и контроль штрафной.";
+  } else if (player.position === "DF") {
+    roleText =
+      " Защитник, который даёт команде баланс в обороне, работу в единоборствах и надёжность без мяча.";
+  } else if (player.position === "MF") {
+    roleText =
+      " Полузащитник, который помогает команде в темпе игры, продвижении мяча и связке между линиями.";
+  } else if (player.position === "FW") {
+    roleText =
+      " Нападающий, который отвечает за остроту впереди, рывки за спину и завершение эпизодов.";
+  }
+
+  return [
+    `${player.full_name} — ${player.position_label.toLowerCase()} первой команды. ${birthInfo}${birthPlace}.${nationality}${previousClub}${shirtNumber}`.trim(),
+    `${roleText}${captain}`.trim(),
+  ];
+}

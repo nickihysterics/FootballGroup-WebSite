@@ -43,7 +43,7 @@ export default function StatCard({
 
       <strong
         className={cn(
-          "block font-[var(--font-display)] text-[clamp(1.5rem,2vw,2.2rem)] leading-none",
+          "block font-[var(--font-display)] text-[clamp(1.7rem,2.4vw,2.35rem)] leading-none",
           variant === "dark" ? "text-white" : "text-[#081f3d]",
           valueClassName,
         )}

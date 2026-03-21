@@ -17,6 +17,7 @@ import SectionHeading from "@/shared/ui/Section/SectionHeading.jsx";
 import Select from "@/shared/ui/Select/Select.jsx";
 import Surface from "@/shared/ui/Surface/Surface.jsx";
 import MatchCard from "@/shared/ui/Matches/MatchCard.jsx";
+import StatCard from "@/shared/ui/StatCard/StatCard.jsx";
 
 const FEED_OPTIONS = [
   { value: "all", label: "Все матчи" },
@@ -24,23 +25,6 @@ const FEED_OPTIONS = [
   { value: "finished", label: "Результаты" },
   { value: "live", label: "Live" },
 ];
-
-function StatCard({ label, value }) {
-  return (
-    <div
-      className={cn(
-        "rounded-[22px] border border-[#d7e6f4] bg-white/92 px-4 py-4 shadow-[0_12px_26px_rgba(8,31,61,.05)]",
-      )}
-    >
-      <div className={cn("text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#7b91ac]")}>
-        {label}
-      </div>
-      <div className={cn("mt-2 font-[var(--font-display)] text-[clamp(1.7rem,2.4vw,2.35rem)] leading-none tracking-[-0.045em] text-[#0b2344]")}>
-        {value}
-      </div>
-    </div>
-  );
-}
 
 export default function MatchesPage() {
   const { data } = usePageData();
