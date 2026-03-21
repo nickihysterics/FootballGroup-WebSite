@@ -84,6 +84,7 @@ function normalizePlayer(player) {
     full_name: player.full_name || "Игрок",
     slug: resolveSlug(player),
     photo_url: player.photo_url || player.remote_photo_url || "",
+    number: player.number ?? "",
     position: resolvePositionKey(player.position),
     position_label:
       player.position_label || resolvePositionLabel(player.position),
@@ -438,7 +439,7 @@ function CaptainSpotlight({ captain, href }) {
     <Link to={href} className={cn("group block h-full")}>
       <div
         className={cn(
-          "relative h-full min-h-[430px] overflow-hidden rounded-[32px] border border-[#0d4ea5]/15 bg-[linear-gradient(180deg,#1557ad_0%,#0d3f80_34%,#0a2f63_68%,#082349_100%)] shadow-[0_24px_60px_rgba(8,31,61,.18)]",
+          "relative h-full min-h-[460px] overflow-hidden rounded-[32px] border border-[#0d4ea5]/15 bg-[linear-gradient(180deg,#1557ad_0%,#0d3f80_34%,#0a2f63_68%,#082349_100%)] shadow-[0_24px_60px_rgba(8,31,61,.18)] xl:min-h-[430px]",
         )}
       >
         <div
@@ -453,7 +454,11 @@ function CaptainSpotlight({ captain, href }) {
           )}
         />
 
-        <div className={cn("relative h-[258px] overflow-hidden")}>
+        <div
+          className={cn(
+            "relative h-[clamp(18.5rem,36vw,25rem)] overflow-hidden min-[571px]:max-xl:h-[26.25rem] xl:h-[clamp(18.5rem,36vw,25rem)]",
+          )}
+        >
           <span
             className={cn(
               "absolute left-4 top-4 z-[6] inline-flex min-h-9 items-center rounded-full border border-white/10 bg-white/12 px-3.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-white backdrop-blur-md",
@@ -479,21 +484,23 @@ function CaptainSpotlight({ captain, href }) {
           />
 
           {photo ? (
-            <div
-              className={cn(
-                "absolute inset-x-0 bottom-0 top-0 z-[3] flex items-end justify-center px-4 pt-4",
-              )}
-            >
-              <img
-                src={photo}
-                alt={captain.full_name}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
+            <div className={cn("absolute inset-0 z-[3] overflow-hidden")}>
+              <div
                 className={cn(
-                  "max-h-[101%] w-auto max-w-[92%] object-contain object-bottom drop-shadow-[0_18px_30px_rgba(3,16,38,.22)] transition duration-500 group-hover:translate-y-0.5 group-hover:scale-[1.015]",
+                  "absolute inset-x-0 top-1 bottom-0 flex items-start justify-center px-4 md:px-5 min-[571px]:max-xl:top-5",
                 )}
-              />
+              >
+                <img
+                  src={photo}
+                  alt={captain.full_name}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  className={cn(
+                    "pointer-events-none block h-[118%] w-auto max-w-none select-none drop-shadow-[0_18px_30px_rgba(3,16,38,.22)] transition duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-[1.015] min-[571px]:max-xl:h-[108%] min-[571px]:max-xl:group-hover:-translate-y-0.5",
+                  )}
+                />
+              </div>
             </div>
           ) : (
             <span

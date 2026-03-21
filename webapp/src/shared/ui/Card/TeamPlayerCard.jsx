@@ -44,6 +44,7 @@ function normalizePlayer(player) {
     ...player,
     full_name: player.full_name || "Игрок",
     photo_url: player.photo_url || player.remote_photo_url || "",
+    number: player.number ?? "",
     position_label:
       player.position_label || resolvePositionLabel(player.position),
     matches_for_club: player.matches_for_club ?? 0,
@@ -167,7 +168,8 @@ function PlayerPoster({ player }) {
   return (
     <div
       className={cn(
-        "relative h-[286px] overflow-hidden rounded-[24px] border border-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,.55)]",
+        "relative overflow-hidden rounded-[24px] border border-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,.55)]",
+        "h-[clamp(18rem,34vw,21rem)]",
         tone.poster,
       )}
     >
@@ -214,21 +216,23 @@ function PlayerPoster({ player }) {
       />
 
       {photo ? (
-        <div
-          className={cn(
-            "absolute inset-x-0 bottom-0 top-0 z-[2] flex items-end justify-center px-4 pt-4",
-          )}
-        >
-          <img
-            src={photo}
-            alt={player.full_name}
-            loading="lazy"
-            decoding="async"
-            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+        <div className={cn("absolute inset-0 z-[2] overflow-hidden")}>
+          <div
             className={cn(
-              "max-h-[99%] w-auto max-w-[92%] object-contain object-bottom transition duration-500 group-hover:translate-y-1 group-hover:scale-[1.02]",
+              "absolute inset-x-0 top-1 bottom-0 flex items-start justify-center px-3 sm:px-4",
             )}
-          />
+          >
+            <img
+              src={photo}
+              alt={player.full_name}
+              loading="lazy"
+              decoding="async"
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+              className={cn(
+                "pointer-events-none block h-[114%] w-auto max-w-none select-none drop-shadow-[0_16px_28px_rgba(8,31,61,.14)] transition duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-[1.02]",
+              )}
+            />
+          </div>
         </div>
       ) : (
         <span

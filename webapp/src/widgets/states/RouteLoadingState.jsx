@@ -26,7 +26,7 @@ export default function RouteLoadingState({ route }) {
     prettifySlug(matchedPlayerRoute?.params?.playerSlug);
 
   const title = isPlayerRoute
-    ? `Открываем профиль ${previewName || "игрока"}`
+    ? `Открываем страницу ${previewName || "игрока"}`
     : route?.label
       ? `Открываем раздел «${route.label}»`
       : "Открываем страницу";
