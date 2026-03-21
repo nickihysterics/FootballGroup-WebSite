@@ -5,7 +5,9 @@ import { cn } from "@/shared/lib/cn.js";
 
 const variantClassMap = {
   primary:
-    "border border-transparent bg-[linear-gradient(180deg,#1f95ff_0%,#0d61c2_100%)] text-white shadow-[0_16px_34px_rgba(13,97,194,.24)] hover:-translate-y-0.5 hover:shadow-[0_20px_38px_rgba(13,97,194,.30)] [&>svg]:!text-white [&>span]:!text-white",
+    "border border-[#1976e6] bg-[linear-gradient(180deg,#2d94f6_0%,#1678e6_100%)] text-white shadow-[0_12px_28px_rgba(22,120,230,.22)] hover:-translate-y-0.5 hover:bg-[linear-gradient(180deg,#369bfd_0%,#197dea_100%)] hover:shadow-[0_16px_34px_rgba(22,120,230,.28)] focus:ring-sky-500/20 [&>svg]:!text-white [&>span]:!text-white",
+  secondary:
+    "border border-[#d8e4f2] bg-[#f8fbff] text-[#17406f] shadow-[0_8px_18px_rgba(15,23,42,.05)] hover:-translate-y-0.5 hover:border-[#c6d8eb] hover:bg-[#f2f8ff]",
   ghost:
     "border border-[#d9e5f2] bg-white text-[#102544] shadow-[0_8px_18px_rgba(8,31,61,.05)] hover:-translate-y-0.5 hover:border-[#c4d8ee] hover:bg-[#fbfdff]",
   dark:
@@ -47,7 +49,7 @@ const Button = forwardRef(function Button(
       type={isButton ? type || "button" : undefined}
       disabled={isButton ? disabled || loading : undefined}
       className={cn(
-        "inline-flex cursor-pointer select-none items-center justify-center gap-2 rounded-full font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500/20 disabled:pointer-events-none disabled:opacity-60",
+        "inline-flex cursor-pointer select-none items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 ease-out focus:outline-none focus:ring-2 disabled:pointer-events-none disabled:opacity-60",
         sizeClassMap[size] || sizeClassMap.md,
         variantClassMap[variant] || variantClassMap.primary,
         fullWidth && "w-full",

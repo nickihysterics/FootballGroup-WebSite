@@ -1,3 +1,5 @@
+import { matchPath } from "react-router-dom";
+
 export const PAGE_ROUTES = [
   {
     page: "home",
@@ -50,5 +52,14 @@ export function getRouteByPage(page) {
 
 export function getRouteByPathname(pathname) {
   const normalizedPath = normalizePathname(pathname);
+
+  if (normalizedPath === "/") {
+    return getRouteByPage("home");
+  }
+
+  if (matchPath("/team/:playerSlug/", normalizedPath)) {
+    return getRouteByPage("team");
+  }
+
   return PAGE_ROUTES.find((route) => route.path === normalizedPath) || null;
 }

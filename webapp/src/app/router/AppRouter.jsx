@@ -7,6 +7,7 @@ import HomePage from "@/pages/HomePage/HomePage.jsx";
 import MatchesPage from "@/pages/MatchesPage/MatchesPage.jsx";
 import MediaPage from "@/pages/MediaPage/MediaPage.jsx";
 import TeamPage from "@/pages/TeamPage/TeamPage.jsx";
+import PlayerPage from "@/pages/TeamPage/PlayerPage.jsx";
 
 export default function AppRouter({ initialPage, initialPathname, initialPayload }) {
   return (
@@ -22,6 +23,7 @@ export default function AppRouter({ initialPage, initialPathname, initialPayload
       >
         <Route index element={<HomePage />} />
         <Route path="team" element={<TeamPage />} />
+        <Route path="team/:playerSlug" element={<PlayerPage />} />
         <Route path="matches" element={<MatchesPage />} />
         <Route path="media" element={<MediaPage />} />
         <Route path="contacts" element={<ContactsPage />} />

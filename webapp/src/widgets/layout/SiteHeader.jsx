@@ -53,7 +53,7 @@ function DesktopNavItem({ item }) {
               strokeWidth={1.9}
             />
           ) : null}
-          <span>{item.label}</span>
+          <span className={cn()}>{item.label}</span>
         </>
       )}
     </NavLink>
@@ -76,12 +76,18 @@ function MobileNavItem({ item, onClick }) {
         )
       }
     >
-      <span className="flex items-center gap-3">
-        {Icon ? <Icon className="h-4 w-4 shrink-0" strokeWidth={1.9} /> : null}
-        <span className="text-[15px] font-semibold">{item.label}</span>
+      <span className={cn("flex items-center gap-3")}>
+        {Icon ? (
+          <Icon className={cn("h-4 w-4 shrink-0")} strokeWidth={1.9} />
+        ) : null}
+        <span className={cn("text-[15px] font-semibold")}>{item.label}</span>
       </span>
 
-      <ChevronRight className="h-4 w-4 shrink-0 opacity-60 transition-transform duration-200 group-hover:translate-x-0.5" />
+      <ChevronRight
+        className={cn(
+          "h-4 w-4 shrink-0 opacity-60 transition-transform duration-200 group-hover:translate-x-0.5",
+        )}
+      />
     </NavLink>
   );
 }
@@ -106,7 +112,7 @@ function BrandBlock({ club, compact = false }) {
         compact ? "gap-3" : "gap-3",
       )}
     >
-      <span className="relative flex shrink-0 items-center justify-center">
+      <span className={cn("relative flex shrink-0 items-center justify-center")}>
         <span
           className={cn(
             "absolute rounded-full bg-[radial-gradient(circle,rgba(73,153,255,.10)_0%,rgba(73,153,255,0)_72%)] blur-2xl",
@@ -121,7 +127,7 @@ function BrandBlock({ club, compact = false }) {
         />
       </span>
 
-      <span className="min-w-0">
+      <span className={cn("min-w-0")}>
         <span
           className={cn(
             "block truncate font-bold leading-tight text-[#102544]",
@@ -185,32 +191,48 @@ export default function SiteHeader({ club }) {
   }, [primaryCta]);
 
   return (
-    <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-5">
-      <div className="mx-auto flex w-full justify-center">
-        <div className="w-full xl:w-fit xl:max-w-[calc(100vw-40px)]">
-          <div className="overflow-hidden rounded-[26px] border border-white/80 bg-[linear-gradient(180deg,rgba(241,247,253,.96)_0%,rgba(231,240,248,.96)_100%)] shadow-[0_12px_30px_rgba(8,37,78,.10)] backdrop-blur-xl">
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-0">
-                <div className="absolute left-[-34px] top-[-34px] h-24 w-24 rounded-full bg-sky-300/16 blur-3xl" />
-                <div className="absolute right-[-16px] top-0 h-20 w-20 rounded-full bg-blue-300/10 blur-3xl" />
+    <header className={cn("sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-5")}>
+      <div className={cn("mx-auto flex w-full justify-center")}>
+        <div className={cn("w-full xl:w-fit xl:max-w-[calc(100vw-40px)]")}>
+          <div
+            className={cn(
+              "overflow-hidden rounded-[26px] border border-white/80 bg-[linear-gradient(180deg,rgba(241,247,253,.96)_0%,rgba(231,240,248,.96)_100%)] shadow-[0_12px_30px_rgba(8,37,78,.10)] backdrop-blur-xl",
+            )}
+          >
+            <div className={cn("relative")}>
+              <div className={cn("pointer-events-none absolute inset-0")}>
+                <div
+                  className={cn(
+                    "absolute left-[-34px] top-[-34px] h-24 w-24 rounded-full bg-sky-300/16 blur-3xl",
+                  )}
+                />
+                <div
+                  className={cn(
+                    "absolute right-[-16px] top-0 h-20 w-20 rounded-full bg-blue-300/10 blur-3xl",
+                  )}
+                />
               </div>
 
-              <div className="relative">
-                <div className="hidden xl:block px-5 pb-4 pt-3.5">
-                  <div className="flex items-center">
+              <div className={cn("relative")}>
+                <div className={cn("hidden xl:block px-5 pb-4 pt-3.5")}>
+                  <div className={cn("flex items-center")}>
                     <BrandBlock club={club} />
                   </div>
 
-                  <div className="mt-2.5 flex items-center gap-3">
-                    <nav className="shrink-0">
-                      <div className="inline-flex items-center gap-1.5 rounded-[20px] bg-white/42 p-1.5 ring-1 ring-white/70">
+                  <div className={cn("mt-2.5 flex items-center gap-3")}>
+                    <nav className={cn("shrink-0")}>
+                      <div
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-[20px] bg-white/42 p-1.5 ring-1 ring-white/70",
+                        )}
+                      >
                         {PAGE_ROUTES.map((item) => (
                           <DesktopNavItem key={item.page} item={item} />
                         ))}
                       </div>
                     </nav>
 
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className={cn("flex shrink-0 items-center gap-2")}>
                       {primaryCta ? (
                         <Button
                           as="a"
@@ -219,7 +241,7 @@ export default function SiteHeader({ club }) {
                           rel="noreferrer"
                           leftIcon={primaryCta.icon}
                           size="sm"
-                          className="min-w-[168px] !min-h-10 px-4"
+                          className={cn("min-w-[168px] !min-h-10 px-4")}
                         >
                           {primaryCta.label}
                         </Button>
@@ -234,7 +256,7 @@ export default function SiteHeader({ club }) {
                           variant="ghost"
                           leftIcon={secondaryCta.icon}
                           size="sm"
-                          className="min-w-[150px] !min-h-10 px-4"
+                          className={cn("min-w-[150px] !min-h-10 px-4")}
                         >
                           {secondaryCta.label}
                         </Button>
@@ -243,13 +265,13 @@ export default function SiteHeader({ club }) {
                   </div>
                 </div>
 
-                <div className="xl:hidden px-3 py-3 sm:px-4 sm:py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="min-w-0 flex-1">
+                <div className={cn("xl:hidden px-3 py-3 sm:px-4 sm:py-4")}>
+                  <div className={cn("flex items-center gap-3")}>
+                    <div className={cn("min-w-0 flex-1")}>
                       <BrandBlock club={club} compact />
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className={cn("flex shrink-0 items-center gap-2")}>
                       {primaryCta ? (
                         <>
                           <Button
@@ -259,7 +281,9 @@ export default function SiteHeader({ club }) {
                             rel="noreferrer"
                             leftIcon={Ticket}
                             size="sm"
-                            className="hidden min-w-[160px] !min-h-10 sm:inline-flex"
+                            className={cn(
+                              "hidden min-w-[160px] !min-h-10 sm:inline-flex",
+                            )}
                           >
                             {primaryCta.label}
                           </Button>
@@ -269,9 +293,14 @@ export default function SiteHeader({ club }) {
                             target="_blank"
                             rel="noreferrer"
                             aria-label={mobileButtonOnlyLabel}
-                            className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-transparent bg-[linear-gradient(180deg,#1f95ff_0%,#0d61c2_100%)] text-white shadow-[0_12px_24px_rgba(13,97,194,.18)] sm:hidden"
+                            className={cn(
+                              "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-transparent bg-[linear-gradient(180deg,#1f95ff_0%,#0d61c2_100%)] text-white shadow-[0_12px_24px_rgba(13,97,194,.18)] sm:hidden",
+                            )}
                           >
-                            <Ticket className="h-4 w-4" strokeWidth={1.9} />
+                            <Ticket
+                              className={cn("h-4 w-4")}
+                              strokeWidth={1.9}
+                            />
                           </a>
                         </>
                       ) : null}
@@ -289,9 +318,9 @@ export default function SiteHeader({ club }) {
                         )}
                       >
                         {menuOpen ? (
-                          <X className="h-4.5 w-4.5" strokeWidth={2} />
+                          <X className={cn("h-4.5 w-4.5")} strokeWidth={2} />
                         ) : (
-                          <Menu className="h-4.5 w-4.5" strokeWidth={2} />
+                          <Menu className={cn("h-4.5 w-4.5")} strokeWidth={2} />
                         )}
                       </button>
                     </div>
@@ -307,9 +336,13 @@ export default function SiteHeader({ club }) {
               menuOpen ? "mt-3 max-h-[720px] opacity-100" : "max-h-0 opacity-0",
             )}
           >
-            <div className="px-1 pb-1">
-              <div className="rounded-[22px] border border-white/85 bg-[linear-gradient(180deg,rgba(242,247,253,.98)_0%,rgba(233,241,249,.98)_100%)] p-3 ring-1 ring-[#dbe8f7]/60">
-                <div className="space-y-2.5">
+            <div className={cn("px-1 pb-1")}>
+              <div
+                className={cn(
+                  "rounded-[22px] border border-white/85 bg-[linear-gradient(180deg,rgba(242,247,253,.98)_0%,rgba(233,241,249,.98)_100%)] p-3 ring-1 ring-[#dbe8f7]/60",
+                )}
+              >
+                <div className={cn("space-y-2.5")}>
                   {PAGE_ROUTES.map((item) => (
                     <MobileNavItem
                       key={item.page}
@@ -320,7 +353,7 @@ export default function SiteHeader({ club }) {
                 </div>
 
                 {(primaryCta || secondaryCta) && (
-                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <div className={cn("mt-4 grid gap-2 sm:grid-cols-2")}>
                     {primaryCta ? (
                       <Button
                         as="a"
@@ -343,7 +376,7 @@ export default function SiteHeader({ club }) {
                         variant="ghost"
                         leftIcon={secondaryCta.icon}
                         fullWidth
-                        className="bg-white"
+                        className={cn("bg-white")}
                       >
                         {secondaryCta.label}
                       </Button>
