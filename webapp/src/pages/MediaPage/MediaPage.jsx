@@ -550,8 +550,7 @@ export default function MediaPage() {
                       "mt-5 max-w-[44ch] text-[16px] leading-8 text-[#5f7899]",
                     )}
                   >
-                    Главные публикации, клубные новости и визуальные истории
-                    матчдэй — в собранной и аккуратной медиа-подаче клуба.
+                    Главные публикации, клубные новости и визуальные истории.
                   </p>
 
                   <div className={cn("mt-8 grid gap-3 sm:grid-cols-3")}>
@@ -628,7 +627,6 @@ export default function MediaPage() {
             <SectionIntro
               eyebrow="Новости"
               title="Редакционная лента клуба"
-              description="Чистая новостная сетка, крупные обложки и спокойная иерархия для официальных публикаций команды."
             />
 
             {newsItems.length ? (
@@ -662,8 +660,7 @@ export default function MediaPage() {
           >
             <SectionIntro
               eyebrow="Галерея"
-              title="Фотоистории матчдэй и атмосфера арены"
-              description="Подборка кадров команды, арены и клубной среды в цельной визуальной подаче."
+              title="Фотоистории"
             />
 
             {galleryItems.length ? (

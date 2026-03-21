@@ -29,7 +29,7 @@ function resolveMapUrl(club) {
 
   if (!query) return "";
 
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  return `https://yandex.ru/maps/?text=${encodeURIComponent(query)}`;
 }
 
 function uniqueByHref(items) {
