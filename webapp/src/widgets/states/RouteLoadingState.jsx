@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { matchPath, useLocation } from "react-router-dom";
 
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 
 function prettifySlug(slug) {
   return String(slug || "")
@@ -13,6 +14,7 @@ function prettifySlug(slug) {
 }
 
 export default function RouteLoadingState({ route }) {
+  const { t } = useI18n();
   const location = useLocation();
 
   const matchedPlayerRoute =
@@ -26,10 +28,14 @@ export default function RouteLoadingState({ route }) {
     prettifySlug(matchedPlayerRoute?.params?.playerSlug);
 
   const title = isPlayerRoute
-    ? `Открываем страницу ${previewName || "игрока"}`
-    : route?.label
-      ? `Открываем раздел «${route.label}»`
-      : "Открываем страницу";
+    ? t("loading.openPlayer", {
+        name: previewName || t("loading.playerFallback"),
+      })
+    : route?.page
+      ? t("loading.openSection", {
+          label: t(`nav.${route.page}`),
+        })
+      : t("loading.openPage");
 
   return (
     <section className={cn("mx-auto w-full max-w-[1360px] px-4 py-6")}>
@@ -62,7 +68,7 @@ export default function RouteLoadingState({ route }) {
                   "text-xs font-semibold uppercase tracking-[0.2em] text-sky-700",
                 )}
               >
-                Загрузка
+                {t("loading.title")}
               </p>
 
               <h2 className={cn("text-2xl font-semibold text-slate-950")}>

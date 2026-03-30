@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import { getPlayerTone } from "@/shared/lib/teamPlayers.js";
 import PosterRings from "@/shared/ui/Team/PosterRings.jsx";
 
@@ -11,6 +12,7 @@ export default function PlayerPoster({
   showCaptain = false,
   className,
 }) {
+  const { t } = useI18n();
   const resolvedTone = tone || getPlayerTone(player);
   const photo = player?.photo_url || "";
   const isHero = variant === "hero";
@@ -51,7 +53,7 @@ export default function PlayerPoster({
             resolvedTone.captainChip,
           )}
         >
-          Капитан
+          {t("team.captain")}
         </span>
       ) : null}
 

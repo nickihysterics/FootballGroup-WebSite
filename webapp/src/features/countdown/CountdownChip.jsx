@@ -3,12 +3,13 @@ import { CalendarClock, Radio, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 
-function getCountdownData(kickoffIso) {
+function getCountdownData(kickoffIso, t) {
   if (!kickoffIso) {
     return {
       mode: "unknown",
-      label: "Детали матча",
+      label: t("countdown.details"),
     };
   }
 
@@ -16,7 +17,7 @@ function getCountdownData(kickoffIso) {
   if (!kickoff.isValid()) {
     return {
       mode: "unknown",
-      label: "Детали матча",
+      label: t("countdown.details"),
     };
   }
 
@@ -25,7 +26,7 @@ function getCountdownData(kickoffIso) {
   if (diffMinutes <= 0) {
     return {
       mode: "live",
-      label: "Матч начался",
+      label: t("countdown.started"),
     };
   }
 
@@ -36,17 +37,18 @@ function getCountdownData(kickoffIso) {
   if (days > 0) {
     return {
       mode: "upcoming",
-      label: `${days}д ${hours}ч ${minutes}м`,
+      label: `${days}${t("countdown.dayShort")} ${hours}${t("countdown.hourShort")} ${minutes}${t("countdown.minuteShort")}`,
     };
   }
 
   return {
     mode: "upcoming",
-    label: `${hours}ч ${minutes}м`,
+    label: `${hours}${t("countdown.hourShort")} ${minutes}${t("countdown.minuteShort")}`,
   };
 }
 
 export default function CountdownChip({ kickoffIso, dark = false, className }) {
+  const { t } = useI18n();
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function CountdownChip({ kickoffIso, dark = false, className }) {
     return () => window.clearInterval(timer);
   }, []);
 
-  const data = useMemo(() => getCountdownData(kickoffIso), [kickoffIso, tick]);
+  const data = useMemo(() => getCountdownData(kickoffIso, t), [kickoffIso, t, tick]);
 
   const Icon =
     data.mode === "live"

@@ -1,4 +1,11 @@
-import { CalendarDays, CheckCircle2, Clock3, MinusCircle, Sparkles, Trophy, XCircle } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock3, MinusCircle, Sparkles, XCircle } from "lucide-react";
+
+import {
+  formatFullDateLabel as formatFullDateValue,
+  formatMonthLabel as formatMonthValue,
+  formatTimeLabel as formatTimeValue,
+  translate,
+} from "@/shared/i18n/index.jsx";
 
 function capitalize(value) {
   if (!value) return "";
@@ -39,36 +46,22 @@ export function initialsOfTeam(name) {
     .join("");
 }
 
-export function formatMonthLabel(date) {
-  if (!date) return "Без даты";
+export function formatMonthLabel(language, date) {
+  if (!date) return translate(language, "match.withoutDate");
 
-  return capitalize(
-    new Intl.DateTimeFormat("ru-RU", {
-      month: "long",
-      year: "numeric",
-    }).format(date),
-  );
+  return capitalize(formatMonthValue(language, date));
 }
 
-export function formatFullDateLabel(date) {
-  if (!date) return "Дата уточняется";
+export function formatFullDateLabel(language, date) {
+  if (!date) return translate(language, "match.datePending");
 
-  return capitalize(
-    new Intl.DateTimeFormat("ru-RU", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    }).format(date),
-  );
+  return capitalize(formatFullDateValue(language, date));
 }
 
-export function formatTimeLabel(date) {
-  if (!date) return "—";
+export function formatTimeLabel(language, date) {
+  if (!date) return translate(language, "common.na");
 
-  return new Intl.DateTimeFormat("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  return formatTimeValue(language, date);
 }
 
 function parseScore(resultLabel) {
@@ -114,14 +107,14 @@ export function resolveMatchState(match, date) {
   return "upcoming";
 }
 
-export function resolveStatusMeta(match) {
+export function resolveStatusMeta(match, language = "ru") {
   const raw = `${match?.status_label || ""} ${match?.summary || ""}`.toLowerCase();
   const state = match?.state;
   const score = parseScore(match?.result_label);
 
   if (state === "live") {
     return {
-      label: match?.status_label || "Идёт матч",
+      label: translate(language, "match.status.live"),
       tone: "live",
       icon: Sparkles,
     };
@@ -129,7 +122,7 @@ export function resolveStatusMeta(match) {
 
   if (raw.includes("побед")) {
     return {
-      label: match?.status_label || "Победа",
+      label: translate(language, "match.status.win"),
       tone: "success",
       icon: CheckCircle2,
     };
@@ -137,7 +130,7 @@ export function resolveStatusMeta(match) {
 
   if (raw.includes("пораж")) {
     return {
-      label: match?.status_label || "Поражение",
+      label: translate(language, "match.status.loss"),
       tone: "danger",
       icon: XCircle,
     };
@@ -145,7 +138,7 @@ export function resolveStatusMeta(match) {
 
   if (raw.includes("нич")) {
     return {
-      label: match?.status_label || "Ничья",
+      label: translate(language, "match.status.draw"),
       tone: "warning",
       icon: MinusCircle,
     };
@@ -153,7 +146,7 @@ export function resolveStatusMeta(match) {
 
   if (state === "upcoming") {
     return {
-      label: match?.status_label || "Скоро",
+      label: translate(language, "match.status.soon"),
       tone: "upcoming",
       icon: CalendarDays,
     };
@@ -162,7 +155,7 @@ export function resolveStatusMeta(match) {
   if (score) {
     if (score.home > score.away) {
       return {
-        label: "Победа",
+        label: translate(language, "match.status.win"),
         tone: "success",
         icon: CheckCircle2,
       };
@@ -170,31 +163,31 @@ export function resolveStatusMeta(match) {
 
     if (score.home < score.away) {
       return {
-        label: "Поражение",
+        label: translate(language, "match.status.loss"),
         tone: "danger",
         icon: XCircle,
       };
     }
 
     return {
-      label: "Ничья",
+      label: translate(language, "match.status.draw"),
       tone: "warning",
       icon: MinusCircle,
     };
   }
 
   return {
-    label: match?.status_label || "Завершён",
+    label: translate(language, "match.status.finished"),
     tone: "neutral",
     icon: Clock3,
   };
 }
 
-export function normalizeMatch(match, index) {
+export function normalizeMatch(match, index, language = "ru") {
   const date = parseDate(match?.kickoff_iso);
   const state = resolveMatchState(match, date);
-  const opponent = match?.opponent || "Соперник";
-  const competition = match?.competition || "Матч клуба";
+  const opponent = match?.opponent || translate(language, "common.opponent");
+  const competition = match?.competition || translate(language, "match.clubMatch");
 
   const normalized = {
     ...match,
@@ -208,25 +201,25 @@ export function normalizeMatch(match, index) {
     monthKey: date
       ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
       : `unknown-${index}`,
-    monthLabel: formatMonthLabel(date),
-    fullDateLabel: match?.date_label || formatFullDateLabel(date),
-    timeLabel: match?.time_label || formatTimeLabel(date),
-    venueLabel: match?.venue || "Арена уточняется",
-    cityLabel: match?.city || "Локация уточняется",
+    monthLabel: formatMonthLabel(language, date),
+    fullDateLabel: formatFullDateLabel(language, date),
+    timeLabel: formatTimeLabel(language, date),
+    venueLabel: match?.venue || translate(language, "match.arenaTba"),
+    cityLabel: match?.city || translate(language, "match.locationTba"),
     resultText:
       state === "upcoming" && !(match?.result_label && /\d/.test(String(match.result_label)))
         ? "VS"
-        : match?.result_label || "—",
+        : match?.result_label || translate(language, "common.na"),
     summaryText: match?.summary || "",
   };
 
   return {
     ...normalized,
-    statusMeta: resolveStatusMeta(normalized),
+    statusMeta: resolveStatusMeta(normalized, language),
   };
 }
 
-export function buildTournamentOptions(matches) {
+export function buildTournamentOptions(matches, language = "ru") {
   const seen = new Map();
 
   matches.forEach((match) => {
@@ -238,10 +231,10 @@ export function buildTournamentOptions(matches) {
     }
   });
 
-  return [{ value: "all", label: "Все турниры" }, ...seen.values()];
+  return [{ value: "all", label: translate(language, "match.allTournaments") }, ...seen.values()];
 }
 
-export function buildMonthOptions(matches) {
+export function buildMonthOptions(matches, language = "ru") {
   const seen = new Map();
 
   matches.forEach((match) => {
@@ -253,7 +246,7 @@ export function buildMonthOptions(matches) {
     }
   });
 
-  return [{ value: "all", label: "Все месяцы" }, ...seen.values()];
+  return [{ value: "all", label: translate(language, "match.allMonths") }, ...seen.values()];
 }
 
 export function groupMatchesByMonth(matches) {

@@ -17,6 +17,7 @@ import {
 
 import usePageData from "@/features/page-data/usePageData.js";
 import { cn } from "@/shared/lib/cn.js";
+import { translateChannelLabel, useI18n } from "@/shared/i18n/index.jsx";
 import Reveal from "@/shared/ui/Reveal/Reveal.jsx";
 import Chip from "@/shared/ui/Chip/Chip.jsx";
 import SectionHeading from "@/shared/ui/Section/SectionHeading.jsx";
@@ -102,6 +103,7 @@ function resolveChannelMeta(label) {
 }
 
 function InfoRow({ icon: Icon, label, value, href }) {
+  const { t } = useI18n();
   const isExternal =
     typeof href === "string" &&
     (href.startsWith("http://") || href.startsWith("https://"));
@@ -139,7 +141,7 @@ function InfoRow({ icon: Icon, label, value, href }) {
                 "group inline-flex max-w-full items-center gap-2 break-all font-semibold text-[#0b2344] transition-colors duration-300 hover:text-[#0d4ea5]",
               )}
             >
-              <span>{value || "—"}</span>
+              <span>{value || t("common.na")}</span>
               <ArrowUpRight
                 className={cn(
                   "h-4 w-4 shrink-0 opacity-55 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100",
@@ -147,7 +149,7 @@ function InfoRow({ icon: Icon, label, value, href }) {
               />
             </a>
           ) : (
-            <span className={cn("font-semibold")}>{value || "—"}</span>
+            <span className={cn("font-semibold")}>{value || t("common.na")}</span>
           )}
         </div>
       </div>
@@ -205,8 +207,10 @@ function ContactAction({ href, icon: Icon, title, value, external = false }) {
 }
 
 function ChannelCard({ channel }) {
+  const { language } = useI18n();
   const meta = resolveChannelMeta(channel?.label);
   const Icon = meta.icon;
+  const label = translateChannelLabel(language, channel?.label);
 
   return (
     <a
@@ -236,7 +240,7 @@ function ChannelCard({ channel }) {
 
         <div className={cn("min-w-0 flex-1")}>
           <div className={cn("text-[15px] font-semibold text-[#0b2344]")}>
-            {channel.label}
+            {label}
           </div>
         </div>
 
@@ -251,6 +255,7 @@ function ChannelCard({ channel }) {
 }
 
 function RouteCard({ href, icon: Icon, title, description }) {
+  const { t } = useI18n();
   return (
     <a
       href={href}
@@ -292,7 +297,7 @@ function RouteCard({ href, icon: Icon, title, description }) {
             "mt-4 inline-flex items-center gap-2 text-[14px] font-semibold text-[#0d4ea5]",
           )}
         >
-          <span>Открыть</span>
+          <span>{t("common.open")}</span>
           <ArrowUpRight className={cn("h-4 w-4")} />
         </div>
       </div>
@@ -302,6 +307,7 @@ function RouteCard({ href, icon: Icon, title, description }) {
 
 export default function ContactsPage() {
   const { data } = usePageData();
+  const { t } = useI18n();
 
   const club = data?.club || {};
   const clubLinks = club?.links || {};
@@ -323,32 +329,32 @@ export default function ContactsPage() {
         ? {
             href: club.source_url,
             icon: Newspaper,
-            title: "Официальный ресурс",
-            description: "Новости, публикации и основные сервисные разделы клуба.",
+            title: t("contacts.route.official.title"),
+            description: t("contacts.route.official.description"),
           }
         : null,
       clubLinks.membership_url
         ? {
             href: clubLinks.membership_url,
             icon: Ticket,
-            title: "Абонементы",
-            description: "Сезонные программы и маршруты для болельщиков.",
+            title: t("contacts.route.membership.title"),
+            description: t("contacts.route.membership.description"),
           }
         : null,
       clubLinks.shop_url
         ? {
             href: clubLinks.shop_url,
             icon: ShoppingBag,
-            title: "Магазин",
-            description: "Фирменный мерч и официальные клубные товары.",
+            title: t("contacts.route.shop.title"),
+            description: t("contacts.route.shop.description"),
           }
         : null,
       partnershipUrl
         ? {
             href: partnershipUrl,
             icon: Crown,
-            title: "Hospitality",
-            description: "Премиальные места и коммерческие форматы посещения.",
+            title: t("common.hospitality"),
+            description: t("contacts.route.hospitality.description"),
           }
         : null,
     ].filter(Boolean),
@@ -374,7 +380,7 @@ export default function ContactsPage() {
                     "border border-white/10 bg-white/[0.08] px-4 text-white",
                   )}
                 >
-                  Контакты клуба
+                  {t("contacts.heroBadge")}
                 </Chip>
 
                 <h1
@@ -382,7 +388,7 @@ export default function ContactsPage() {
                     "mt-4 max-w-[8.5ch] font-[var(--font-display)] text-[clamp(2.15rem,4.2vw,3.95rem)] leading-[0.9] tracking-[-0.065em] text-white",
                   )}
                 >
-                  Официальный контактный контур клуба и арены
+                  {t("contacts.heroTitle")}
                 </h1>
 
                 <div className={cn("mt-6 grid gap-3 sm:grid-cols-2")}>
@@ -399,7 +405,7 @@ export default function ContactsPage() {
                     <ContactAction
                       href={`tel:${club.phone}`}
                       icon={Phone}
-                      title="Телефон"
+                      title={t("common.phone")}
                       value={club.phone}
                     />
                   ) : null}
@@ -416,7 +422,7 @@ export default function ContactsPage() {
                       )}
                     >
                       <MapPin className={cn("h-4 w-4")} strokeWidth={1.9} />
-                      <span>Открыть на карте</span>
+                      <span>{t("common.openOnMap")}</span>
                       <ArrowUpRight
                         className={cn(
                           "h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5",
@@ -435,7 +441,7 @@ export default function ContactsPage() {
                       )}
                     >
                       <Globe2 className={cn("h-4 w-4")} strokeWidth={1.9} />
-                      <span>Официальный сайт</span>
+                      <span>{t("common.officialWebsite")}</span>
                       <ArrowUpRight
                         className={cn(
                           "h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5",
@@ -460,7 +466,7 @@ export default function ContactsPage() {
                     "text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0d4ea5]",
                   )}
                 >
-                  Штаб-квартира
+                  {t("contacts.hqEyebrow")}
                 </div>
 
                 <h2
@@ -468,34 +474,34 @@ export default function ContactsPage() {
                     "mt-3 font-[var(--font-display)] text-[clamp(1.75rem,2.6vw,2.5rem)] leading-[0.94] tracking-[-0.045em] text-[#0b2344]",
                   )}
                 >
-                  {club.name || "Футбольный клуб"}
+                  {club.name || t("contacts.defaultClubName")}
                 </h2>
 
                 <div className={cn("mt-5 grid gap-3")}>
                   <InfoRow
                     icon={Building2}
-                    label="Арена"
-                    value={club.stadium || "—"}
+                    label={t("common.arena")}
+                    value={club.stadium || t("common.na")}
                   />
 
                   <InfoRow
                     icon={MapPin}
-                    label="Адрес"
-                    value={club.address || club.city || "—"}
+                    label={t("common.address")}
+                    value={club.address || club.city || t("common.na")}
                     href={mapUrl || undefined}
                   />
 
                   <InfoRow
                     icon={Mail}
-                    label="Email"
-                    value={club.email || "—"}
+                    label={t("common.email")}
+                    value={club.email || t("common.na")}
                     href={club.email ? `mailto:${club.email}` : undefined}
                   />
 
                   <InfoRow
                     icon={Phone}
-                    label="Телефон"
-                    value={club.phone || "—"}
+                    label={t("common.phone")}
+                    value={club.phone || t("common.na")}
                     href={club.phone ? `tel:${club.phone}` : undefined}
                   />
                 </div>
@@ -517,8 +523,8 @@ export default function ContactsPage() {
               )}
             >
               <SectionHeading
-                eyebrow="Каналы"
-                title="Официальные каналы клуба"
+                eyebrow={t("contacts.channelsEyebrow")}
+                title={t("contacts.channelsTitle")}
                 className={cn("mb-5")}
                 titleClassName={cn("max-w-[13ch] text-[clamp(1.55rem,2.2vw,2.2rem)]")}
               />
@@ -538,7 +544,7 @@ export default function ContactsPage() {
                     "rounded-[22px] border border-dashed border-[#d8e5f2] bg-[#f8fbff] px-4 py-5 text-[14px] leading-6 text-[#6983a5]",
                   )}
                 >
-                  Каналы пока не заполнены.
+                  {t("contacts.channelsEmpty")}
                 </div>
               )}
             </Surface>
@@ -551,8 +557,8 @@ export default function ContactsPage() {
               )}
             >
               <SectionHeading
-                eyebrow="Маршруты"
-                title="Куда перейти дальше"
+                eyebrow={t("contacts.routesEyebrow")}
+                title={t("contacts.routesTitle")}
                 className={cn("mb-5")}
                 titleClassName={cn("max-w-[12ch] text-[clamp(1.55rem,2.2vw,2.2rem)]")}
               />

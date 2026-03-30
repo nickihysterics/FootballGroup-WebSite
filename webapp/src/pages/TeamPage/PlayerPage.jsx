@@ -11,6 +11,7 @@ import { Navigate, useParams } from "react-router-dom";
 
 import usePageData from "@/features/page-data/usePageData.js";
 import { cn } from "@/shared/lib/cn.js";
+import { formatHeightValue, formatWeightValue, useI18n } from "@/shared/i18n/index.jsx";
 import {
   buildPlayerBiography,
   buildPlayerTraits,
@@ -32,9 +33,10 @@ import TeamMetricCard from "@/shared/ui/Team/TeamMetricCard.jsx";
 export default function PlayerPage() {
   const { playerSlug } = useParams();
   const { data } = usePageData();
+  const { language, t } = useI18n();
   const [photoBroken, setPhotoBroken] = useState(false);
 
-  const allPlayers = collectAllPlayers(data);
+  const allPlayers = collectAllPlayers(data, language);
 
   const player = allPlayers.find(
     (item) => String(item.slug || item.id) === String(playerSlug),
@@ -49,15 +51,15 @@ export default function PlayerPage() {
       <Navigate
         to="/error/"
         replace
-        state={{ type: "not-found", title: "Игрок не найден" }}
+        state={{ type: "not-found", title: t("team.playerNotFound") }}
       />
     );
   }
 
   const tone = getPlayerTone(player);
-  const heroStats = getPlayerHeroStats(player);
-  const traits = buildPlayerTraits(player);
-  const biography = buildPlayerBiography(player);
+  const heroStats = getPlayerHeroStats(player, language);
+  const traits = buildPlayerTraits(player, language);
+  const biography = buildPlayerBiography(player, language);
   const relatedPlayers = buildRelatedPlayers(allPlayers, player, 3);
 
   return (
@@ -82,7 +84,7 @@ export default function PlayerPage() {
                   </HeroPill>
 
                   {player.captain ? (
-                    <HeroPill className={tone.strongChipClass}>Капитан</HeroPill>
+                    <HeroPill className={tone.strongChipClass}>{t("team.captain")}</HeroPill>
                   ) : null}
                 </div>
 
@@ -92,8 +94,10 @@ export default function PlayerPage() {
 
                 <p className="mx-auto mt-3 max-w-[40ch] text-[14px] leading-6 text-[#5f7899]">
                   {player.place_of_birth
-                    ? `Родился в ${player.place_of_birth}`
-                    : "Игрок первой команды клуба."}
+                    ? t("player.heroSubtitle.withBirthPlace", {
+                        place: player.place_of_birth,
+                      })
+                    : t("team.firstTeamPlayerLong")}
                 </p>
 
                 <div className="mx-auto mt-5 max-w-[360px] sm:max-w-[390px]">
@@ -132,54 +136,58 @@ export default function PlayerPage() {
             >
               <div>
                 <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0d4ea5]">
-                  Профиль
+                  {t("team.profileEyebrow")}
                 </div>
                 <h2 className="mt-2 font-[var(--font-display)] text-[clamp(2rem,3vw,2.85rem)] leading-[0.92] tracking-[-0.045em] text-[#0b2344]">
-                  Игровые и биографические данные
+                  {t("team.profileTitle")}
                 </h2>
               </div>
 
               <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <TeamInfoCard
                   icon={CalendarDays}
-                  label="Дата рождения"
+                  label={t("common.birthDate")}
                   value={player.birth_date_label}
-                  hint={player.age ? `${player.age} лет` : null}
+                  hint={player.age ? `${player.age} ${t("common.years")}` : null}
                 />
 
                 <TeamInfoCard
                   icon={MapPin}
-                  label="Место рождения"
-                  value={player.place_of_birth || "—"}
+                  label={t("common.birthPlace")}
+                  value={player.place_of_birth || t("common.na")}
                 />
 
                 <TeamInfoCard
                   icon={Flag}
-                  label="Гражданство"
-                  value={player.citizenship || "—"}
+                  label={t("common.citizenship")}
+                  value={player.citizenship || t("common.na")}
                   valueClassName="text-[15px] leading-5"
                 />
 
                 <TeamInfoCard
                   icon={UserRound}
-                  label="Предыдущий клуб"
-                  value={player.previous_club || "—"}
+                  label={t("common.previousClub")}
+                  value={player.previous_club || t("common.na")}
                 />
 
                 <TeamInfoCard
                   icon={Shield}
-                  label="Позиция"
+                  label={t("common.position")}
                   value={player.position_label}
                 />
 
                 <TeamInfoCard
                   icon={Weight}
-                  label="Антропометрия"
+                  label={t("common.measurements")}
                   value={
                     [
-                      player.height_cm ? `${player.height_cm} см` : null,
-                      player.weight_kg ? `${player.weight_kg} кг` : null,
-                    ].filter(Boolean).join(" · ") || "—"
+                      player.height_cm
+                        ? formatHeightValue(language, player.height_cm)
+                        : null,
+                      player.weight_kg
+                        ? formatWeightValue(language, player.weight_kg)
+                        : null,
+                    ].filter(Boolean).join(" · ") || t("common.na")
                   }
                 />
               </div>
@@ -192,10 +200,10 @@ export default function PlayerPage() {
             >
               <div>
                 <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0d4ea5]">
-                  Игровой профиль
+                  {t("team.traitsEyebrow")}
                 </div>
                 <h2 className="mt-2 font-[var(--font-display)] text-[clamp(1.8rem,2.6vw,2.5rem)] leading-[0.92] tracking-[-0.045em] text-[#0b2344]">
-                  Ключевые качества
+                  {t("team.traitsTitle")}
                 </h2>
               </div>
 
@@ -218,10 +226,10 @@ export default function PlayerPage() {
             >
               <div>
                 <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0d4ea5]">
-                  Биография
+                  {t("team.biographyEyebrow")}
                 </div>
                 <h2 className="mt-2 font-[var(--font-display)] text-[clamp(1.8rem,2.6vw,2.5rem)] leading-[0.92] tracking-[-0.045em] text-[#0b2344]">
-                  О игроке
+                  {t("team.biographyTitle")}
                 </h2>
               </div>
 
@@ -248,10 +256,12 @@ export default function PlayerPage() {
             <div className="mb-5 rounded-[24px] border border-[#dce8f4] bg-white/82 p-4 shadow-[0_14px_34px_rgba(8,31,61,.05)] backdrop-blur-md">
               <div>
                 <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0d4ea5]">
-                  Эта же линия
+                  {t("team.sameLineEyebrow")}
                 </div>
                 <h2 className="mt-2 font-[var(--font-display)] text-[clamp(1.8rem,2.6vw,2.5rem)] leading-[0.92] tracking-[-0.045em] text-[#223a5b]">
-                  Ещё {resolvePositionPlural(player.position).toLowerCase()}
+                  {t("team.morePosition", {
+                    position: resolvePositionPlural(player.position, language).toLowerCase(),
+                  })}
                 </h2>
               </div>
 

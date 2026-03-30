@@ -14,6 +14,9 @@ import { Link } from "react-router-dom";
 import CountdownChip from "@/features/countdown/CountdownChip.jsx";
 import usePageData from "@/features/page-data/usePageData.js";
 import { cn } from "@/shared/lib/cn.js";
+import { translateGalleryCategory, useI18n } from "@/shared/i18n/index.jsx";
+import { normalizeMatch } from "@/shared/lib/matches.js";
+import { normalizeTeamPlayer } from "@/shared/lib/teamPlayers.js";
 import Button from "@/shared/ui/Button/Button.jsx";
 import Reveal from "@/shared/ui/Reveal/Reveal.jsx";
 import Section from "@/shared/ui/Section/Section.jsx";
@@ -23,11 +26,7 @@ import Surface from "@/shared/ui/Surface/Surface.jsx";
 import TeamPlayerCard from "@/shared/ui/Team/TeamPlayerCard.jsx";
 import StadiumScene from "@/widgets/stadium/StadiumScene.jsx";
 
-const statLabels = [
-  ["Побед", "wins"],
-  ["Голы", "goals"],
-  ["Сухих матчей", "clean_sheets"],
-];
+const statKeys = ["wins", "goals", "clean_sheets"];
 
 function truncateText(value, maxLength = 140) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
@@ -49,6 +48,9 @@ const darkSoftCard =
   "border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03))] shadow-[inset_0_1px_0_rgba(255,255,255,.08),0_16px_34px_rgba(4,18,44,.18)]";
 
 function HeroMiniMatchCard({ match, tone = "light" }) {
+  const { language } = useI18n();
+  const normalizedMatch = normalizeMatch(match, -1, language);
+
   if (!match) return null;
 
   const isDark = tone === "dark";
@@ -68,7 +70,7 @@ function HeroMiniMatchCard({ match, tone = "light" }) {
           isDark ? "text-white/44" : "text-[#7b91ac]",
         )}
       >
-        {match.competition}
+        {normalizedMatch.competition}
       </div>
 
       <div
@@ -77,7 +79,7 @@ function HeroMiniMatchCard({ match, tone = "light" }) {
           isDark ? "text-white" : "text-[#0b2344]",
         )}
       >
-        {match.opponent}
+        {normalizedMatch.opponent}
       </div>
 
       <div
@@ -93,7 +95,7 @@ function HeroMiniMatchCard({ match, tone = "light" }) {
           )}
           strokeWidth={1.9}
         />
-        <span>{match.date_label}</span>
+        <span>{normalizedMatch.fullDateLabel}</span>
       </div>
 
       <div
@@ -109,7 +111,7 @@ function HeroMiniMatchCard({ match, tone = "light" }) {
           )}
           strokeWidth={1.9}
         />
-        <span>{match.time_label}</span>
+        <span>{normalizedMatch.timeLabel}</span>
       </div>
     </article>
   );
@@ -122,6 +124,7 @@ function EditorialStoryCard({
   fallbackTitle,
   featured = false,
 }) {
+  const { t } = useI18n();
   const image = story?.cover_url || fallbackImage;
   const excerpt = truncateText(
     story?.excerpt || fallbackText,
@@ -178,7 +181,7 @@ function EditorialStoryCard({
         )}
       >
         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/72">
-          {story?.published_label || "Новость клуба"}
+          {story?.published_label || t("home.newsDefault")}
         </div>
 
         <h3
@@ -217,7 +220,7 @@ function EditorialStoryCard({
                 : "mt-2.5 min-h-7 px-3 text-[9px]",
             )}
           >
-            <span>Открыть источник</span>
+            <span>{t("common.openSource")}</span>
             <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2} />
           </a>
         ) : null}
@@ -227,6 +230,9 @@ function EditorialStoryCard({
 }
 
 function ResultCard({ result, dark = false }) {
+  const { language, t } = useI18n();
+  const normalizedResult = normalizeMatch(result, -2, language);
+
   if (!result) return null;
 
   return (
@@ -242,7 +248,7 @@ function ResultCard({ result, dark = false }) {
           dark ? "text-white/42" : "text-[#7b91ac]",
         )}
       >
-        Последний результат
+        {t("common.latestResult")}
       </div>
 
       <div
@@ -251,7 +257,7 @@ function ResultCard({ result, dark = false }) {
           dark ? "text-white" : "text-[#0b2344]",
         )}
       >
-        {result.score_for ?? "–"}:{result.score_against ?? "–"}
+        {normalizedResult.score_for ?? "–"}:{normalizedResult.score_against ?? "–"}
       </div>
 
       <div
@@ -260,7 +266,7 @@ function ResultCard({ result, dark = false }) {
           dark ? "text-white" : "text-[#17375f]",
         )}
       >
-        {result.opponent}
+        {normalizedResult.opponent}
       </div>
 
       <p
@@ -269,12 +275,12 @@ function ResultCard({ result, dark = false }) {
           dark ? "text-white/72" : "text-[#5f7899]",
         )}
       >
-        {truncateText(result.summary || result.competition, 56)}
+        {truncateText(normalizedResult.summaryText || normalizedResult.competition, 56)}
       </p>
 
-      {result?.source_url ? (
+      {normalizedResult?.source_url ? (
         <a
-          href={result.source_url}
+          href={normalizedResult.source_url}
           target="_blank"
           rel="noreferrer"
           className={cn(
@@ -282,7 +288,7 @@ function ResultCard({ result, dark = false }) {
             dark ? "text-white" : "text-[#0d4ea5]",
           )}
         >
-          <span>Протокол матча</span>
+          <span>{t("common.matchProtocol")}</span>
           <ArrowUpRight className="h-4 w-4" strokeWidth={2} />
         </a>
       ) : null}
@@ -291,6 +297,9 @@ function ResultCard({ result, dark = false }) {
 }
 
 function PlayerWeekCard({ player }) {
+  const { language, t } = useI18n();
+  const safePlayer = normalizeTeamPlayer(player, language);
+
   if (!player) return null;
 
   return (
@@ -302,28 +311,28 @@ function PlayerWeekCard({ player }) {
         )}
       >
         <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7b91ac]">
-          Игрок недели
+          {t("common.playerOfWeek")}
         </div>
 
         <div className="mt-3 font-[var(--font-display)] text-[clamp(1.05rem,1.15vw,1.24rem)] leading-[0.95] tracking-[-0.04em] text-[#0b2344]">
-          {player.full_name}
+          {safePlayer.full_name}
         </div>
 
         <div className="mt-2 text-[13px] font-semibold text-[#17375f]">
-          {player.position_label} · #{player.number}
+          {safePlayer.position_label} · #{safePlayer.number}
         </div>
 
         <p className="mt-2.5 text-[12px] leading-6 text-[#5f7899]">
           {truncateText(
-            player.compact_profile ||
-              player.bio ||
-              "Один из ключевых игроков первой команды в текущем игровом цикле.",
+            safePlayer.compact_profile ||
+              safePlayer.bio ||
+              t("home.playerOfWeekFallback"),
             44,
           )}
         </p>
 
         <div className="mt-4 inline-flex items-center gap-2 text-[12px] font-bold text-[#0d4ea5]">
-          <span>Открыть раздел</span>
+          <span>{t("common.openSection")}</span>
           <ArrowUpRight className="h-4 w-4" strokeWidth={2} />
         </div>
       </article>
@@ -332,6 +341,8 @@ function PlayerWeekCard({ player }) {
 }
 
 function OfferCard({ href, icon: Icon, eyebrow, title, text }) {
+  const { t } = useI18n();
+
   return (
     <a
       href={href}
@@ -362,7 +373,7 @@ function OfferCard({ href, icon: Icon, eyebrow, title, text }) {
       </p>
 
       <div className="mt-4 inline-flex items-center gap-2 text-[13px] font-bold text-white">
-        <span>Перейти</span>
+        <span>{t("common.goTo")}</span>
         <ArrowUpRight className="h-4 w-4" strokeWidth={2} />
       </div>
     </a>
@@ -424,6 +435,8 @@ function ArenaMetaCard({ eyebrow, title, text, dark = false, icon: Icon }) {
 }
 
 function TrophyCard({ trophies }) {
+  const { t } = useI18n();
+
   if (!trophies?.length) return null;
 
   return (
@@ -435,10 +448,10 @@ function TrophyCard({ trophies }) {
 
         <div>
           <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7b91ac]">
-            Трофеи
+            {t("home.trophiesEyebrow")}
           </div>
           <div className="mt-1 font-semibold text-[#0b2344]">
-            Главные достижения клуба
+            {t("home.trophiesTitle")}
           </div>
         </div>
       </div>
@@ -466,6 +479,8 @@ function TrophyCard({ trophies }) {
 }
 
 function GalleryShotCard({ item }) {
+  const { language, t } = useI18n();
+
   return (
     <article
       className={cn(
@@ -486,7 +501,7 @@ function GalleryShotCard({ item }) {
 
       <div className="absolute inset-x-3 bottom-3 z-[2] rounded-[16px] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.05))] p-2.5 backdrop-blur-[16px] shadow-[inset_0_1px_0_rgba(255,255,255,.16)]">
         <div className="text-[8px] font-extrabold uppercase tracking-[0.14em] text-white/68">
-          {item?.accent || item?.category_label || "Галерея"}
+          {item?.accent || translateGalleryCategory(language, item?.category, item?.category_label) || t("common.gallery")}
         </div>
         <div className="mt-1 text-[10px] font-semibold leading-4 text-white">
           {truncateText(item?.title, 28)}
@@ -498,6 +513,7 @@ function GalleryShotCard({ item }) {
 
 export default function HomePage() {
   const { data } = usePageData();
+  const { language, t } = useI18n();
 
   const club = data?.club || {};
   const hero = data?.hero || {};
@@ -510,9 +526,24 @@ export default function HomePage() {
   const scheduleRail = (hero?.next_matches || []).slice(0, 3);
   const galleryRail = (hero?.gallery_items || []).slice(0, 4);
   const trophies = (hero?.trophies || []).slice(0, 4);
+  const normalizedFeaturedMatch = featuredMatch
+    ? normalizeMatch(featuredMatch, -10, language)
+    : null;
+  const normalizedLatestResult = latestResult
+    ? normalizeMatch(latestResult, -11, language)
+    : null;
+  const normalizedPlayerFocus = playerFocus
+    ? normalizeTeamPlayer(playerFocus, language)
+    : null;
+  const normalizedScheduleRail = scheduleRail.map((match, index) =>
+    normalizeMatch(match, index, language),
+  );
+  const normalizedLineupPlayers = (hero?.lineup_players || []).map((player) =>
+    normalizeTeamPlayer(player, language),
+  );
 
   const hasMatchdayAside = Boolean(
-    (featuredMatch && latestResult) || scheduleRail.length,
+    (normalizedFeaturedMatch && normalizedLatestResult) || normalizedScheduleRail.length,
   );
 
   const visualImage =
@@ -538,7 +569,7 @@ export default function HomePage() {
               ) : null}
 
               <div className="inline-flex min-h-9 items-center rounded-full border border-white/70 bg-white/60 px-3 text-[12px] font-semibold text-[#6480a4]">
-                ПАО «Газпром»
+                {t("brand.company")}
               </div>
             </div>
 
@@ -566,19 +597,19 @@ export default function HomePage() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="inline-flex min-h-9 items-center rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white">
-                      Следующий матч
+                      {t("home.nextMatch")}
                     </div>
 
-                    <CountdownChip kickoffIso={featuredMatch.kickoff_iso} />
+                    <CountdownChip kickoffIso={normalizedFeaturedMatch.kickoff_iso} />
                   </div>
 
                   <div className="mt-4 font-[var(--font-display)] text-[clamp(1.45rem,2.2vw,2rem)] leading-[0.92] tracking-[-0.045em] text-white">
-                    {club?.short_name} vs {featuredMatch.opponent}
+                    {club?.short_name} vs {normalizedFeaturedMatch.opponent}
                   </div>
 
                   <p className="mt-2 text-[14px] leading-6 text-white/72">
-                    {featuredMatch.competition} · {featuredMatch.date_label} ·{" "}
-                    {featuredMatch.time_label}
+                    {normalizedFeaturedMatch.competition} · {normalizedFeaturedMatch.fullDateLabel} ·{" "}
+                    {normalizedFeaturedMatch.timeLabel}
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-3">
@@ -592,7 +623,7 @@ export default function HomePage() {
                         size="sm"
                         leftIcon={Ticket}
                       >
-                        Купить билет
+                        {t("common.buyTicket")}
                       </Button>
                     ) : null}
 
@@ -603,7 +634,7 @@ export default function HomePage() {
                       size="sm"
                       rightIcon={ArrowUpRight}
                     >
-                      Матч-центр
+                      {t("common.matchCenter")}
                     </Button>
                   </div>
                 </Surface>
@@ -611,17 +642,23 @@ export default function HomePage() {
             ) : null}
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {statLabels.map(([label, key], index) => (
+              {statKeys.map((key, index) => (
                 <StatCard
                   key={key}
-                  label={label}
+                  label={t(
+                    key === "wins"
+                      ? "home.stats.wins"
+                      : key === "goals"
+                        ? "home.stats.goals"
+                        : "home.stats.cleanSheets",
+                  )}
                   value={club?.stats?.[key] ?? "—"}
                   hint={
                     index === 0
-                      ? "За основной цикл сезона"
+                      ? t("home.stats.winsHint")
                       : index === 1
-                        ? "Во всех турнирах"
-                        : "Надёжность обороны"
+                        ? t("home.stats.goalsHint")
+                        : t("home.stats.cleanSheetsHint")
                   }
                   variant={index === 0 ? "accent" : "default"}
                   className="shadow-[0_12px_24px_rgba(8,31,61,.04)]"
@@ -629,9 +666,9 @@ export default function HomePage() {
               ))}
             </div>
 
-            {scheduleRail.length ? (
+            {normalizedScheduleRail.length ? (
               <div className="mt-5 grid gap-3 md:grid-cols-3">
-                {scheduleRail.map((match) => (
+                {normalizedScheduleRail.map((match) => (
                   <HeroMiniMatchCard
                     key={`${match.opponent}-${match.kickoff_iso}`}
                     match={match}
@@ -645,14 +682,14 @@ export default function HomePage() {
             <EditorialStoryCard
               story={leadStory}
               fallbackImage={visualImage}
-              fallbackTitle="Главная история недели"
+              fallbackTitle={t("home.leadStoryFallback")}
               fallbackText={club?.mission}
               featured
             />
 
             <div className="grid items-stretch gap-4 sm:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-              {latestResult ? <ResultCard result={latestResult} /> : null}
-              {playerFocus ? <PlayerWeekCard player={playerFocus} /> : null}
+              {normalizedLatestResult ? <ResultCard result={normalizedLatestResult} /> : null}
+              {normalizedPlayerFocus ? <PlayerWeekCard player={normalizedPlayerFocus} /> : null}
             </div>
           </div>
         </section>
@@ -665,9 +702,9 @@ export default function HomePage() {
         >
           <SectionHeading
             light
-            eyebrow="Матчдэй"
-            title="Матчдэй на «Газпром Арене»"
-            description="Билеты, hospitality, результат недели и ближайшие матчи — в одном собранном блоке."
+            eyebrow={t("home.matchdayEyebrow")}
+            title={t("home.matchdayTitle")}
+            description={t("home.matchdayDescription")}
             titleClassName="max-w-[16ch]"
             className="!mb-4 md:!mb-5"
           />
@@ -688,18 +725,18 @@ export default function HomePage() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="inline-flex min-h-9 items-center rounded-full border border-white/10 bg-white/10 px-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white">
-                      Следующий матч
+                      {t("home.nextMatch")}
                     </div>
 
-                    <CountdownChip kickoffIso={featuredMatch.kickoff_iso} />
+                    <CountdownChip kickoffIso={normalizedFeaturedMatch.kickoff_iso} />
                   </div>
 
                   <h3 className="mt-4 font-[var(--font-display)] text-[clamp(1.7rem,2.2vw,2.2rem)] leading-[0.93] tracking-[-0.045em] text-white">
-                    {club?.short_name} vs {featuredMatch.opponent}
+                    {club?.short_name} vs {normalizedFeaturedMatch.opponent}
                   </h3>
 
                   <p className="mt-3 text-[15px] leading-7 text-white/72">
-                    {featuredMatch.competition}
+                    {normalizedFeaturedMatch.competition}
                   </p>
 
                   <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -710,10 +747,10 @@ export default function HomePage() {
                       className="border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04))]"
                     >
                       <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-white/42">
-                        Дата
+                        {t("common.date")}
                       </div>
                       <div className="mt-2 text-[15px] font-semibold leading-6 text-white">
-                        {featuredMatch.date_label}
+                        {normalizedFeaturedMatch.fullDateLabel}
                       </div>
                     </Surface>
 
@@ -724,10 +761,10 @@ export default function HomePage() {
                       className="border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04))]"
                     >
                       <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-white/42">
-                        Время
+                        {t("common.time")}
                       </div>
                       <div className="mt-2 text-[15px] font-semibold leading-6 text-white">
-                        {featuredMatch.time_label}
+                        {normalizedFeaturedMatch.timeLabel}
                       </div>
                     </Surface>
 
@@ -738,10 +775,10 @@ export default function HomePage() {
                       className="border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04))]"
                     >
                       <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-white/42">
-                        Арена
+                        {t("common.arena")}
                       </div>
                       <div className="mt-2 text-[15px] font-semibold leading-6 text-white">
-                        {featuredMatch.venue || club?.stadium}
+                        {normalizedFeaturedMatch.venueLabel || club?.stadium}
                       </div>
                     </Surface>
                   </div>
@@ -757,17 +794,17 @@ export default function HomePage() {
                         size="sm"
                         leftIcon={Ticket}
                       >
-                        Билеты
+                        {t("common.tickets")}
                       </Button>
                     ) : null}
 
                     <Button as={Link} to="/matches/" variant="dark" size="sm">
-                      Календарь
+                      {t("common.calendar")}
                     </Button>
                   </div>
                 </Surface>
-              ) : latestResult ? (
-                <ResultCard result={latestResult} dark />
+              ) : normalizedLatestResult ? (
+                <ResultCard result={normalizedLatestResult} dark />
               ) : null}
 
               <div className="grid gap-4 md:grid-cols-3">
@@ -775,9 +812,9 @@ export default function HomePage() {
                   <OfferCard
                     href={club.links.membership_url}
                     icon={ShieldCheck}
-                    eyebrow="Абонементы"
-                    title="Сезонный доступ"
-                    text="Приоритет на домашние матчи и бонусы клубной программы."
+                    eyebrow={t("home.offer.membership.eyebrow")}
+                    title={t("home.offer.membership.title")}
+                    text={t("home.offer.membership.text")}
                   />
                 ) : null}
 
@@ -785,9 +822,9 @@ export default function HomePage() {
                   <OfferCard
                     href={club.links.shop_url}
                     icon={ShoppingBag}
-                    eyebrow="Магазин"
-                    title="Официальная экипировка"
-                    text="Форма, капсулы и фирменный мерч в одной коллекции сезона."
+                    eyebrow={t("home.offer.shop.eyebrow")}
+                    title={t("home.offer.shop.title")}
+                    text={t("home.offer.shop.text")}
                   />
                 ) : null}
 
@@ -795,9 +832,9 @@ export default function HomePage() {
                   <OfferCard
                     href={club.links.hospitality_url}
                     icon={Ticket}
-                    eyebrow="Hospitality"
-                    title="Премиальные места"
-                    text="Ложи, бизнес-клуб и премиальный сценарий посещения матча."
+                    eyebrow={t("common.hospitality")}
+                    title={t("home.offer.hospitality.title")}
+                    text={t("home.offer.hospitality.text")}
                   />
                 ) : null}
               </div>
@@ -805,11 +842,11 @@ export default function HomePage() {
 
             {hasMatchdayAside ? (
               <div className="grid gap-4">
-                {featuredMatch && latestResult ? (
-                  <ResultCard result={latestResult} dark />
+                {normalizedFeaturedMatch && normalizedLatestResult ? (
+                  <ResultCard result={normalizedLatestResult} dark />
                 ) : null}
 
-                {scheduleRail.length ? (
+                {normalizedScheduleRail.length ? (
                   <Surface
                     variant="dark"
                     padding="sm"
@@ -817,11 +854,11 @@ export default function HomePage() {
                     className="bg-[linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025))]"
                   >
                     <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-white/44">
-                      Ближайшие матчи
+                      {t("home.upcomingMatches")}
                     </div>
 
                     <div className="mt-3 grid gap-3">
-                      {scheduleRail.map((match) => (
+                      {normalizedScheduleRail.map((match) => (
                         <HeroMiniMatchCard
                           key={`matchday-${match.opponent}-${match.kickoff_iso}`}
                           match={match}
@@ -840,9 +877,9 @@ export default function HomePage() {
       <Reveal y={24} duration={0.55}>
         <Section>
           <SectionHeading
-            eyebrow="Арена"
-            title="Арена и матчдэй"
-            description="Сначала большая сцена стадиона, потом аккуратный информационный ряд под ней."
+            eyebrow={t("home.arenaEyebrow")}
+            title={t("home.arenaTitle")}
+            description={t("home.arenaDescription")}
             titleClassName="max-w-[14ch]"
           />
 
@@ -855,12 +892,12 @@ export default function HomePage() {
               <StadiumScene
                 clubName={club?.short_name}
                 stadiumName={club?.stadium}
-                featuredMatch={featuredMatch}
+                featuredMatch={normalizedFeaturedMatch}
               />
 
-              {!!hero?.lineup_players?.length && (
+              {!!normalizedLineupPlayers.length && (
                 <div className="pointer-events-none absolute bottom-4 right-4 z-[5] grid w-[min(280px,calc(100%-32px))] gap-2 max-[720px]:static max-[720px]:w-auto max-[720px]:p-4">
-                  {hero.lineup_players.slice(0, 3).map((player) => (
+                  {normalizedLineupPlayers.slice(0, 3).map((player) => (
                     <div
                       key={player.id}
                       className="pointer-events-auto rounded-[18px] border border-white/18 bg-[linear-gradient(180deg,rgba(7,31,67,.74),rgba(7,31,67,.58))] px-4 py-3 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_16px_34px_rgba(7,31,67,.16)]"
@@ -879,22 +916,24 @@ export default function HomePage() {
           <div className="mt-4 grid gap-4 xl:grid-cols-[300px_280px_minmax(0,1fr)]">
             <ArenaMetaCard
               dark
-              eyebrow="Домашняя арена"
-              title={club?.stadium || "Газпром Арена"}
-              text={`${club?.city || "Санкт-Петербург"} · домашние матчи, клубная программа и центральная сцена сезона.`}
+              eyebrow={t("home.homeArenaEyebrow")}
+              title={club?.stadium || t("brand.defaultStadium")}
+              text={t("home.homeArenaFallbackText", {
+                city: club?.city || t("brand.defaultCity"),
+              })}
             />
 
             <ArenaMetaCard
-              eyebrow="Ближайший слот"
+              eyebrow={t("home.nextSlotEyebrow")}
               title={
-                featuredMatch
-                  ? `${featuredMatch.date_label} · ${featuredMatch.time_label}`
-                  : "Ближайший игровой слот"
+                normalizedFeaturedMatch
+                  ? `${normalizedFeaturedMatch.fullDateLabel} · ${normalizedFeaturedMatch.timeLabel}`
+                  : t("home.nextSlotFallbackTitle")
               }
               text={
-                featuredMatch
-                  ? `${club?.short_name} vs ${featuredMatch.opponent}`
-                  : "Клуб держит в центре внимания ближайший домашний матч."
+                normalizedFeaturedMatch
+                  ? `${club?.short_name} vs ${normalizedFeaturedMatch.opponent}`
+                  : t("home.nextSlotFallbackText")
               }
             />
 
@@ -906,9 +945,9 @@ export default function HomePage() {
       <Reveal y={24} duration={0.55}>
         <Section>
           <SectionHeading
-            eyebrow="Состав"
-            title="Ключевые игроки сезона"
-            description="Ровная и чистая сетка без лишнего шума — здесь лучше работает простая подача."
+            eyebrow={t("home.squadEyebrow")}
+            title={t("home.squadTitle")}
+            description={t("home.squadDescription")}
             titleClassName="max-w-[15ch]"
           />
 
@@ -923,9 +962,9 @@ export default function HomePage() {
       <Reveal y={24} duration={0.55}>
         <Section className="overflow-hidden">
           <SectionHeading
-            eyebrow="Медиа"
-            title="Новости и фотоистории недели"
-            description="Одна главная история, вторая публикация рядом и отдельная лента галереи ниже."
+            eyebrow={t("home.mediaEyebrow")}
+            title={t("home.mediaTitle")}
+            description={t("home.mediaDescription")}
             titleClassName="max-w-[17ch]"
           />
 
@@ -934,7 +973,7 @@ export default function HomePage() {
               <EditorialStoryCard
                 story={leadStory}
                 fallbackImage={visualImage}
-                fallbackTitle="Главная история недели"
+                fallbackTitle={t("home.leadStoryFallback")}
                 fallbackText={club?.mission}
                 featured
               />
@@ -945,19 +984,19 @@ export default function HomePage() {
                 <EditorialStoryCard
                   story={secondStory}
                   fallbackImage={visualImage}
-                  fallbackTitle="Вторая история"
+                  fallbackTitle={t("home.secondStoryFallback")}
                   fallbackText=""
                 />
               ) : (
                 <article className={cn("rounded-[24px] p-5", softCard)}>
                   <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7b91ac]">
-                    Медиа-фокус
+                    {t("home.mediaFocusEyebrow")}
                   </div>
                   <div className="mt-3 font-[var(--font-display)] text-[1.45rem] leading-[0.94] tracking-[-0.04em] text-[#0b2344]">
-                    Клубная повестка недели
+                    {t("home.mediaFocusTitle")}
                   </div>
                   <p className="mt-3 text-[14px] leading-7 text-[#5f7899]">
-                    Интервью, заметки и публикации вокруг ближайшего матча.
+                    {t("home.mediaFocusDescription")}
                   </p>
                 </article>
               )}
@@ -966,10 +1005,10 @@ export default function HomePage() {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7b91ac]">
-                      Медиа-раздел
+                      {t("home.mediaSectionEyebrow")}
                     </div>
                     <div className="mt-1 font-semibold text-[#0b2344]">
-                      Все публикации клуба
+                      {t("home.mediaSectionTitle")}
                     </div>
                   </div>
 
@@ -980,7 +1019,7 @@ export default function HomePage() {
                     size="sm"
                     leftIcon={Newspaper}
                   >
-                    Все материалы
+                    {t("common.allMaterials")}
                   </Button>
                 </div>
               </article>
@@ -996,10 +1035,10 @@ export default function HomePage() {
 
                 <div>
                   <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7b91ac]">
-                    Галерея
+                    {t("home.galleryEyebrow")}
                   </div>
                   <div className="mt-1 font-semibold text-[#0b2344]">
-                    Matchday и клубные кадры
+                    {t("home.galleryTitle")}
                   </div>
                 </div>
               </div>
@@ -1025,15 +1064,15 @@ export default function HomePage() {
             <div className="flex flex-wrap items-start justify-between gap-5">
               <div className="max-w-[56ch]">
                 <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7b91ac]">
-                  Клубная экосистема
+                  {t("home.ecosystemEyebrow")}
                 </div>
 
                 <h2 className="mt-3 font-[var(--font-display)] text-[clamp(1.9rem,3vw,2.7rem)] leading-[0.93] tracking-[-0.045em] text-[#081f3d]">
-                  Состав, календарь, арена и медиа — в одной витрине сезона
+                  {t("home.ecosystemTitle")}
                 </h2>
 
                 <p className="mt-4 text-[15px] leading-8 text-[#5c7599]">
-                  Финальный блок лучше держать компактным: короткий месседж и два ясных действия.
+                  {t("home.ecosystemDescription")}
                 </p>
               </div>
 
@@ -1044,7 +1083,7 @@ export default function HomePage() {
                   variant="primary"
                   leftIcon={CalendarDays}
                 >
-                  Календарь матчей
+                  {t("home.matchesButton")}
                 </Button>
 
                 <Button
@@ -1053,7 +1092,7 @@ export default function HomePage() {
                   variant="secondary"
                   leftIcon={Newspaper}
                 >
-                  Состав команды
+                  {t("home.teamButton")}
                 </Button>
               </div>
             </div>
@@ -1066,25 +1105,25 @@ export default function HomePage() {
             className={cn(lightCard)}
           >
             <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7b91ac]">
-              Быстрый статус
+              {t("common.quickStatus")}
             </div>
 
             <div className="mt-4 grid gap-3">
               <StatCard
-                label="Домашняя арена"
+                label={t("common.homeArena")}
                 value={club?.stadium || "—"}
-                hint={club?.city || "Клубная локация"}
+                hint={club?.city || t("common.clubLocation")}
                 className="shadow-[0_12px_26px_rgba(8,31,61,.05)]"
                 valueClassName="text-[1.35rem] leading-[1.08]"
               />
 
               <StatCard
-                label="Игрок недели"
-                value={playerFocus?.full_name || "—"}
+                label={t("common.playerOfWeek")}
+                value={normalizedPlayerFocus?.full_name || "—"}
                 hint={
-                  playerFocus
-                    ? `${playerFocus.position_label} · #${playerFocus.number}`
-                    : "Нет активного выбора"
+                  normalizedPlayerFocus
+                    ? `${normalizedPlayerFocus.position_label} · #${normalizedPlayerFocus.number}`
+                    : t("common.noActiveSelection")
                 }
                 className="shadow-[0_12px_26px_rgba(8,31,61,.05)]"
                 valueClassName="text-[1.35rem] leading-[1.08]"

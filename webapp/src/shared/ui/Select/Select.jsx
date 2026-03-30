@@ -2,18 +2,20 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 
 export default function Select({
   options = [],
   value = null,
   onChange,
-  placeholder = "Выберите значение",
+  placeholder,
   disabled = false,
   name,
   className,
   triggerClassName,
   menuClassName,
 }) {
+  const { t } = useI18n();
   const rootRef = useRef(null);
   const buttonRef = useRef(null);
   const listboxId = useId();
@@ -22,6 +24,7 @@ export default function Select({
   const selectedOption = useMemo(() => {
     return options.find((option) => option.value === value) || null;
   }, [options, value]);
+  const resolvedPlaceholder = placeholder || t("common.selectValue");
 
   useEffect(() => {
     function handleOutsideClick(event) {
@@ -78,7 +81,7 @@ export default function Select({
         )}
       >
         <span className={cn("truncate", !selectedOption && "text-slate-400")}>
-          {selectedOption ? selectedOption.label : placeholder}
+          {selectedOption ? selectedOption.label : resolvedPlaceholder}
         </span>
         <ChevronDown className={cn("h-4 w-4 shrink-0 transition", isOpen && "rotate-180")} strokeWidth={1.9} />
       </button>

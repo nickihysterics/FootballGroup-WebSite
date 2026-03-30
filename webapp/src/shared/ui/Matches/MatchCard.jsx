@@ -1,6 +1,7 @@
-import { ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
+import { ArrowUpRight, CalendarDays, MapPin } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import Chip from "@/shared/ui/Chip/Chip.jsx";
 import MatchStatusBadge from "@/shared/ui/Matches/MatchStatusBadge.jsx";
 import MatchTeamsLine from "@/shared/ui/Matches/MatchTeamsLine.jsx";
@@ -55,6 +56,7 @@ export default function MatchCard({
   topRight,
   className,
 }) {
+  const { t } = useI18n();
   const isFeatured = variant === "featured";
 
   if (isFeatured) {
@@ -77,7 +79,7 @@ export default function MatchCard({
               variant="bright"
               className={cn("border border-white/10 bg-white/10 px-4 text-white")}
             >
-              Главный матч
+              {t("match.featured")}
             </Chip>
 
             {topRight || <MatchStatusBadge status={match.statusMeta} light />}
@@ -94,14 +96,14 @@ export default function MatchCard({
           <div className={cn("mt-6 grid gap-3 md:grid-cols-2")}>
             <InfoBox
               icon={CalendarDays}
-              label="Календарь"
+              label={t("common.calendar")}
               primary={match.fullDateLabel}
               secondary={match.timeLabel}
               light
             />
             <InfoBox
               icon={MapPin}
-              label="Арена"
+              label={t("common.arena")}
               primary={match.venueLabel}
               secondary={match.cityLabel}
               light
@@ -111,7 +113,7 @@ export default function MatchCard({
           <div className={cn("mt-3 flex flex-wrap items-start justify-between gap-3 rounded-[24px] border border-white/10 bg-white/[0.06] px-4 py-4 backdrop-blur-md")}>
             <div>
               <div className={cn("text-[10px] font-extrabold uppercase tracking-[0.16em] text-white/42")}>
-                Турнир
+                {t("common.tournament")}
               </div>
               <div className={cn("mt-2 text-[15px] font-semibold leading-6 text-white")}>
                 {match.competition}
@@ -137,7 +139,7 @@ export default function MatchCard({
                   "group inline-flex min-h-[50px] items-center gap-2 rounded-full border border-white/16 bg-white px-5 text-[14px] font-bold text-[#082349] shadow-[0_14px_34px_rgba(255,255,255,.14)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#eef7ff]",
                 )}
               >
-                <span>Протокол матча</span>
+                <span>{t("common.matchProtocol")}</span>
                 <ArrowUpRight
                   className={cn(
                     "h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5",
@@ -151,7 +153,7 @@ export default function MatchCard({
                   "inline-flex min-h-[50px] items-center rounded-full border border-white/12 bg-white/[0.06] px-5 text-[14px] font-semibold text-white/68",
                 )}
               >
-                Ссылка появится позже
+                {t("common.linkLater")}
               </div>
             )}
           </div>
@@ -197,14 +199,14 @@ return (
 
       <InfoBox
         icon={CalendarDays}
-        label="Календарь"
+        label={t("common.calendar")}
         primary={match.fullDateLabel}
         secondary={match.timeLabel}
       />
 
       <InfoBox
         icon={MapPin}
-        label="Арена"
+        label={t("common.arena")}
         primary={match.venueLabel}
         secondary={match.cityLabel}
       />
@@ -224,7 +226,7 @@ return (
               "group inline-flex min-h-11 w-full items-center justify-between gap-2 rounded-full border border-[#d7e6f4] bg-white px-4 text-[13px] font-bold text-[#0d4ea5] shadow-[0_10px_22px_rgba(8,31,61,.04)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#f8fbff]",
             )}
           >
-            <span>Протокол</span>
+            <span>{t("common.protocol")}</span>
             <ArrowUpRight
               className={cn(
                 "h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5",
@@ -238,7 +240,7 @@ return (
               "inline-flex min-h-11 w-full items-center justify-center rounded-full border border-[#dfe8f2] bg-[#f7fbff] px-4 text-[13px] font-semibold text-[#7e95af]",
             )}
           >
-            Ссылка позже
+            {t("common.linkLaterShort")}
           </div>
         )}
       </div>

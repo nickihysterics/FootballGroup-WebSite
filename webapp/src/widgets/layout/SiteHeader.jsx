@@ -13,6 +13,7 @@ import { Link, NavLink } from "react-router-dom";
 
 import { PAGE_ROUTES } from "@/app/router/pageRoutes.js";
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import GazpromMark from "@/shared/ui/BrandMark/GazpromMark.jsx";
 
 const NAV_ICONS = {
@@ -25,6 +26,7 @@ const NAV_ICONS = {
 
 function DesktopNavItem({ item }) {
   const Icon = NAV_ICONS[item.page];
+  const { t } = useI18n();
 
   return (
     <NavLink
@@ -49,7 +51,7 @@ function DesktopNavItem({ item }) {
               strokeWidth={1.9}
             />
           ) : null}
-          <span>{item.label}</span>
+          <span>{t(`nav.${item.page}`)}</span>
         </>
       )}
     </NavLink>
@@ -58,6 +60,7 @@ function DesktopNavItem({ item }) {
 
 function MobileNavItem({ item, onClick }) {
   const Icon = NAV_ICONS[item.page];
+  const { t } = useI18n();
 
   return (
     <NavLink
@@ -74,7 +77,7 @@ function MobileNavItem({ item, onClick }) {
     >
       <span className="flex items-center gap-3">
         {Icon ? <Icon className="h-4 w-4 shrink-0" strokeWidth={1.9} /> : null}
-        <span className="text-[15px] font-semibold">{item.label}</span>
+        <span className="text-[15px] font-semibold">{t(`nav.${item.page}`)}</span>
       </span>
 
       <ChevronRight className="h-4 w-4 shrink-0 opacity-60 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -83,10 +86,11 @@ function MobileNavItem({ item, onClick }) {
 }
 
 function BrandBlock({ club, compact = false }) {
-  const brandTitle = club?.short_name || club?.name || "Газпром / Зенит";
+  const { t } = useI18n();
+  const brandTitle = club?.short_name || club?.name || t("brand.defaultClubName");
 
   const brandLine = [
-    club?.hero_badge || club?.tagline || "Газпром футбольная программа",
+    club?.hero_badge || club?.tagline || t("brand.defaultBadge"),
     club?.stadium,
     club?.city,
   ]
@@ -96,7 +100,7 @@ function BrandBlock({ club, compact = false }) {
   return (
     <Link
       to="/"
-      aria-label="На главную"
+      aria-label={t("common.toHome")}
       className={cn("group flex min-w-0 items-center gap-3 text-left")}
     >
       <span className="relative flex shrink-0 items-center justify-center">
@@ -137,8 +141,44 @@ function BrandBlock({ club, compact = false }) {
   );
 }
 
+function LanguageToggle({ className }) {
+  const { language, toggleLanguage, t } = useI18n();
+  const isEnglish = language === "en";
+
+  return (
+    <button
+      type="button"
+      onClick={toggleLanguage}
+      aria-label={isEnglish ? t("language.toggleToRu") : t("language.toggleToEn")}
+      className={cn(
+        "inline-flex h-10 items-center gap-2 rounded-[15px] border border-[#d9e5f2] bg-white/88 px-3.5 text-[12px] font-extrabold uppercase tracking-[0.14em] text-[#17375f] shadow-[0_7px_18px_rgba(18,76,154,.06)] transition-all duration-200 hover:bg-white",
+        className,
+      )}
+    >
+      <span
+        className={cn(
+          "rounded-full px-1.5 py-0.5",
+          !isEnglish && "bg-[#eaf4ff] text-[#0f4ea8]",
+        )}
+      >
+        {t("language.ruShort")}
+      </span>
+      <span className="text-[#8ba0b8]">/</span>
+      <span
+        className={cn(
+          "rounded-full px-1.5 py-0.5",
+          isEnglish && "bg-[#eaf4ff] text-[#0f4ea8]",
+        )}
+      >
+        {t("language.enShort")}
+      </span>
+    </button>
+  );
+}
+
 export default function SiteHeader({ club }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     const handleResize = () => {
@@ -173,15 +213,17 @@ export default function SiteHeader({ club }) {
                       <BrandBlock club={club} />
                     </div>
 
-                    <nav className="min-w-0 flex-1">
-                      <div className="flex w-full items-center justify-end">
+                    <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+                      <nav className="min-w-0 flex-1">
                         <div className="inline-flex max-w-full items-center gap-1.5 rounded-[20px] bg-white/42 p-1.5 ring-1 ring-white/70">
                           {PAGE_ROUTES.map((item) => (
                             <DesktopNavItem key={item.page} item={item} />
                           ))}
                         </div>
-                      </div>
-                    </nav>
+                      </nav>
+
+                      <LanguageToggle />
+                    </div>
                   </div>
                 </div>
 
@@ -191,9 +233,11 @@ export default function SiteHeader({ club }) {
                       <BrandBlock club={club} compact />
                     </div>
 
+                    <LanguageToggle className="h-10 px-3 max-[420px]:hidden" />
+
                     <button
                       type="button"
-                      aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+                      aria-label={menuOpen ? t("header.closeMenu") : t("header.openMenu")}
                       aria-expanded={menuOpen}
                       onClick={() => setMenuOpen((prev) => !prev)}
                       className={cn(
@@ -224,6 +268,9 @@ export default function SiteHeader({ club }) {
         >
           <div className="border-b border-white/70 bg-[linear-gradient(180deg,rgba(242,247,253,.98)_0%,rgba(233,241,249,.98)_100%)]">
             <div className="mx-auto w-full max-w-[1480px] px-3 pb-3 pt-1 sm:px-5 sm:pb-4 md:px-6">
+              <div className="mb-2 max-[420px]:block min-[421px]:hidden">
+                <LanguageToggle className="w-full justify-center" />
+              </div>
               <div className="space-y-2.5">
                 {PAGE_ROUTES.map((item) => (
                   <MobileNavItem

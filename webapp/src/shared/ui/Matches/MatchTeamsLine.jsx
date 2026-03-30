@@ -1,4 +1,5 @@
-	import { cn } from "@/shared/lib/cn.js";
+import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import { initialsOfTeam } from "@/shared/lib/matches.js";
 
 function TeamNode({
@@ -102,6 +103,8 @@ export default function MatchTeamsLine({
   light = false,
   className,
 }) {
+  const { t } = useI18n();
+
   return (
     <div
       className={cn(
@@ -110,7 +113,7 @@ export default function MatchTeamsLine({
       )}
     >
       <TeamNode
-        title="Клуб"
+        title={t("match.team.club")}
         label={clubName}
         initials={initialsOfTeam(clubName)}
         accent="club"
@@ -137,7 +140,7 @@ export default function MatchTeamsLine({
       </div>
 
       <TeamNode
-        title="Соперник"
+        title={t("match.team.opponent")}
         label={opponent}
         initials={initialsOfTeam(opponent)}
         accent="opponent"

@@ -1,9 +1,10 @@
-import { CalendarPlus, Sparkles } from "lucide-react";
+import { CalendarPlus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import CountdownChip from "@/features/countdown/CountdownChip.jsx";
 import usePageData from "@/features/page-data/usePageData.js";
 import { cn } from "@/shared/lib/cn.js";
+import { formatMatchCount, useI18n } from "@/shared/i18n/index.jsx";
 import {
   buildMonthOptions,
   buildTournamentOptions,
@@ -19,38 +20,39 @@ import Surface from "@/shared/ui/Surface/Surface.jsx";
 import MatchCard from "@/shared/ui/Matches/MatchCard.jsx";
 import StatCard from "@/shared/ui/StatCard/StatCard.jsx";
 
-const FEED_OPTIONS = [
-  { value: "all", label: "Все матчи" },
-  { value: "upcoming", label: "Ближайшие" },
-  { value: "finished", label: "Результаты" },
-  { value: "live", label: "Live" },
-];
-
 export default function MatchesPage() {
   const { data } = usePageData();
+  const { language, t } = useI18n();
+
+  const feedOptions = [
+    { value: "all", label: t("matches.feed.all") },
+    { value: "upcoming", label: t("matches.feed.upcoming") },
+    { value: "finished", label: t("matches.feed.finished") },
+    { value: "live", label: t("matches.feed.live") },
+  ];
 
   const clubName =
     data?.club?.name ||
     data?.club_profile?.name ||
     data?.team_name ||
-    "ФК Зенит";
+    t("matches.defaultClubName");
 
   const rawMatches = Array.isArray(data?.matches) ? data.matches : [];
   const matchHub = data?.match_hub ?? {};
 
   const normalizedMatches = useMemo(() => {
     return rawMatches
-      .map((match, index) => normalizeMatch(match, index))
+      .map((match, index) => normalizeMatch(match, index, language))
       .sort((a, b) => {
         const left = a.date?.getTime() ?? Number.MAX_SAFE_INTEGER;
         const right = b.date?.getTime() ?? Number.MAX_SAFE_INTEGER;
         return left - right;
       });
-  }, [rawMatches]);
+  }, [language, rawMatches]);
 
   const featuredMatch = useMemo(() => {
     if (data?.featured_match) {
-      return normalizeMatch(data.featured_match, -1);
+      return normalizeMatch(data.featured_match, -1, language);
     }
 
     return (
@@ -58,16 +60,16 @@ export default function MatchesPage() {
       normalizedMatches[0] ||
       null
     );
-  }, [data?.featured_match, normalizedMatches]);
+  }, [data?.featured_match, language, normalizedMatches]);
 
   const tournamentOptions = useMemo(
-    () => buildTournamentOptions(normalizedMatches),
-    [normalizedMatches],
+    () => buildTournamentOptions(normalizedMatches, language),
+    [language, normalizedMatches],
   );
 
   const monthOptions = useMemo(
-    () => buildMonthOptions(normalizedMatches),
-    [normalizedMatches],
+    () => buildMonthOptions(normalizedMatches, language),
+    [language, normalizedMatches],
   );
 
   const [feedMode, setFeedMode] = useState("all");
@@ -131,7 +133,7 @@ export default function MatchesPage() {
                     variant="badge"
                     className={cn("px-4 text-[12px] font-extrabold")}
                   >
-                    Матч-центр
+                    {t("matches.heroBadge")}
                   </Chip>
 
                   <h1
@@ -139,7 +141,7 @@ export default function MatchesPage() {
                       "mt-4 max-w-[7ch] font-[var(--font-display)] text-[clamp(2.8rem,5vw,5.05rem)] leading-[0.86] tracking-[-0.065em] text-[#0b2344]",
                     )}
                   >
-                    Календарь сезона и результаты команды
+                    {t("matches.heroTitle")}
                   </h1>
 
                   <p
@@ -147,14 +149,13 @@ export default function MatchesPage() {
                       "mt-4 max-w-[52ch] text-[15px] leading-7 text-[#5f7899]",
                     )}
                   >
-                    Ближайшие матчи, сыгранные встречи, арена, время и официальный
-                    протокол — в одной аккуратной сезонной ленте.
+                    {t("matches.heroDescription")}
                   </p>
 
                   <div className={cn("mt-7 grid gap-3 md:grid-cols-3")}>
-                    <StatCard label="Матчей в сезоне" value={totalMatches} />
-                    <StatCard label="Ближайшие игры" value={upcomingCount} />
-                    <StatCard label="Сыгранные матчи" value={finishedCount} />
+                    <StatCard label={t("matches.stat.total")} value={totalMatches} />
+                    <StatCard label={t("matches.stat.upcoming")} value={upcomingCount} />
+                    <StatCard label={t("matches.stat.finished")} value={finishedCount} />
                   </div>
 
                   <div className={cn("mt-7 flex flex-wrap items-center gap-3")}>
@@ -168,7 +169,7 @@ export default function MatchesPage() {
                         )}
                       >
                         <CalendarPlus className={cn("h-4 w-4")} strokeWidth={1.9} />
-                        Подписаться на календарь
+                        {t("matches.subscribeCalendar")}
                       </a>
                     ) : null}
                   </div>
@@ -201,8 +202,8 @@ export default function MatchesPage() {
             )}
           >
             <SectionHeading
-              eyebrow="Календарь сезона"
-              title="Полный календарь сезона: от афиши до финального счёта"
+              eyebrow={t("matches.sectionEyebrow")}
+              title={t("matches.sectionTitle")}
               className={cn("mb-6")}
               titleClassName={cn("max-w-[14ch]")}
             />
@@ -210,39 +211,39 @@ export default function MatchesPage() {
             <div className={cn("relative z-[2] grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)_260px_170px] xl:items-end")}>
               <div>
                 <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#5e7697]")}>
-                  Тип матчей
+                  {t("matches.filter.type")}
                 </div>
                 <Select
-                  options={FEED_OPTIONS}
+                  options={feedOptions}
                   value={feedMode}
                   onChange={setFeedMode}
-                  placeholder="Выберите тип"
+                  placeholder={t("matches.filter.placeholderType")}
                   triggerClassName={cn("min-h-[54px] rounded-[20px]")}
                 />
               </div>
 
               <div>
                 <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#5e7697]")}>
-                  Турнир
+                  {t("matches.filter.tournament")}
                 </div>
                 <Select
                   options={tournamentOptions}
                   value={tournamentFilter}
                   onChange={setTournamentFilter}
-                  placeholder="Выберите турнир"
+                  placeholder={t("matches.filter.placeholderTournament")}
                   triggerClassName={cn("min-h-[54px] rounded-[20px]")}
                 />
               </div>
 
               <div>
                 <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#5e7697]")}>
-                  Месяц
+                  {t("matches.filter.month")}
                 </div>
                 <Select
                   options={monthOptions}
                   value={monthFilter}
                   onChange={setMonthFilter}
-                  placeholder="Выберите месяц"
+                  placeholder={t("matches.filter.placeholderMonth")}
                   triggerClassName={cn("min-h-[54px] rounded-[20px]")}
                 />
               </div>
@@ -252,7 +253,7 @@ export default function MatchesPage() {
                   "inline-flex min-h-[54px] items-center justify-center rounded-full border border-[#d9e7f4] bg-white/90 px-4 text-[13px] font-semibold text-[#4f6b8d] shadow-[0_10px_22px_rgba(8,31,61,.04)]",
                 )}
               >
-                В ленте: {filteredMatches.length}
+                {t("matches.filter.inFeed", { count: filteredMatches.length })}
               </div>
             </div>
 
@@ -274,7 +275,7 @@ export default function MatchesPage() {
                           "inline-flex min-h-8 items-center rounded-full border border-[#d9e7f4] bg-white/90 px-3 text-[12px] font-semibold text-[#456487]",
                         )}
                       >
-                        {group.items.length} матч{group.items.length === 1 ? "" : group.items.length < 5 ? "а" : "ей"}
+                        {formatMatchCount(language, group.items.length)}
                       </span>
                     </div>
 
@@ -295,7 +296,7 @@ export default function MatchesPage() {
                     "rounded-[28px] border border-dashed border-[#d8e5f2] bg-[#f8fbff] px-5 py-6 text-[15px] leading-7 text-[#567291]",
                   )}
                 >
-                  По текущим фильтрам матчей не найдено.
+                  {t("matches.empty")}
                 </div>
               )}
             </div>

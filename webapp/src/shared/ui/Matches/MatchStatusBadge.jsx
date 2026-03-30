@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 
 const toneClassMap = {
   success: "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -14,6 +15,7 @@ export default function MatchStatusBadge({
   className,
   light = false,
 }) {
+  const { t } = useI18n();
   const Icon = status?.icon;
 
   return (
@@ -27,7 +29,7 @@ export default function MatchStatusBadge({
       )}
     >
       {Icon ? <Icon className="h-4 w-4" strokeWidth={1.9} /> : null}
-      {status?.label || "Матч"}
+      {status?.label || t("match.status.default")}
     </span>
   );
 }

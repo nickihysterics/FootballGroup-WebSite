@@ -1,9 +1,11 @@
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import { getGroupMeta, scrollToAnchor } from "@/shared/lib/teamPlayers.js";
 import PositionGlyph from "@/shared/ui/Team/PositionGlyph.jsx";
 
 export default function SquadNavChip({ group, anchorId }) {
-  const meta = getGroupMeta(group);
+  const { language } = useI18n();
+  const meta = getGroupMeta(group, language);
 
   return (
     <button

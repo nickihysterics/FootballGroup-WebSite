@@ -11,9 +11,10 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
+import { useI18n } from "@/shared/i18n/index.jsx";
 import Button from "@/shared/ui/Button/Button.jsx";
 
-function resolveErrorConfig(type, state) {
+function resolveErrorConfig(type, state, t) {
   const rawDetail = String(
     state?.detail || state?.message || state?.error || ""
   ).trim();
@@ -41,51 +42,46 @@ function resolveErrorConfig(type, state) {
       kind: "not-found",
       icon: SearchX,
       iconWrapClass: "bg-slate-100 text-slate-700",
-      badge: "Страница не найдена",
-      title: "Не удалось найти страницу",
-      message:
-        "Возможно, ссылка устарела или адрес был введён неправильно.",
-      hint: "Проверьте адрес страницы или вернитесь на главную.",
+      badge: t("error.notFound.badge"),
+      title: t("error.notFound.title"),
+      message: t("error.notFound.message"),
+      hint: t("error.notFound.hint"),
     },
     network: {
       kind: "network",
       icon: WifiOff,
       iconWrapClass: "bg-sky-100 text-sky-700",
-      badge: "Проблема с загрузкой",
-      title: "Не удалось открыть раздел",
-      message:
-        "Мы не смогли загрузить данные страницы. Обычно это временная проблема с интернетом или соединением с сервером.",
-      hint: "Попробуйте обновить страницу или зайти ещё раз чуть позже.",
+      badge: t("error.network.badge"),
+      title: t("error.network.title"),
+      message: t("error.network.message"),
+      hint: t("error.network.hint"),
     },
     forbidden: {
       kind: "forbidden",
       icon: ShieldAlert,
       iconWrapClass: "bg-amber-100 text-amber-700",
-      badge: "Доступ ограничен",
-      title: "Этот раздел недоступен",
-      message:
-        "Похоже, у вашей учётной записи нет доступа к этой странице.",
-      hint: "Вернитесь назад или откройте другой раздел.",
+      badge: t("error.forbidden.badge"),
+      title: t("error.forbidden.title"),
+      message: t("error.forbidden.message"),
+      hint: t("error.forbidden.hint"),
     },
     server: {
       kind: "server",
       icon: ServerCrash,
       iconWrapClass: "bg-rose-100 text-rose-700",
-      badge: "Временная ошибка",
-      title: "Страница временно недоступна",
-      message:
-        "На сервере произошёл сбой. Обычно такая ошибка проходит через некоторое время.",
-      hint: "Обновите страницу и попробуйте снова через пару минут.",
+      badge: t("error.server.badge"),
+      title: t("error.server.title"),
+      message: t("error.server.message"),
+      hint: t("error.server.hint"),
     },
     generic: {
       kind: "generic",
       icon: AlertTriangle,
       iconWrapClass: "bg-slate-100 text-slate-700",
-      badge: "Что-то пошло не так",
-      title: "Не удалось открыть страницу",
-      message:
-        "Во время загрузки произошла ошибка. Попробуйте повторить действие ещё раз.",
-      hint: "Обновите страницу или вернитесь назад.",
+      badge: t("error.generic.badge"),
+      title: t("error.generic.title"),
+      message: t("error.generic.message"),
+      hint: t("error.generic.hint"),
     },
   };
 
@@ -100,12 +96,14 @@ function resolveErrorConfig(type, state) {
 }
 
 export default function ErrorPage({ type = "generic" }) {
+  const { t } = useI18n();
   const location = useLocation();
   const state = location.state || {};
-  const error = resolveErrorConfig(type, state);
+  const error = resolveErrorConfig(type, state, t);
   const Icon = error.icon;
 
   useEffect(() => {
+    document.title = error.title;
     console.groupCollapsed(
       `[ErrorPage] ${error.kind} • ${location.pathname || "/"}`
     );
@@ -145,7 +143,7 @@ export default function ErrorPage({ type = "generic" }) {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Button as={Link} to="/" variant="primary" leftIcon={Home}>
-            На главную
+            {t("common.toHome")}
           </Button>
 
           <Button
@@ -153,7 +151,7 @@ export default function ErrorPage({ type = "generic" }) {
             leftIcon={RefreshCw}
             onClick={() => window.location.reload()}
           >
-            Обновить страницу
+            {t("common.reloadPage")}
           </Button>
 
           <Button
@@ -161,7 +159,7 @@ export default function ErrorPage({ type = "generic" }) {
             leftIcon={ArrowLeft}
             onClick={() => window.history.back()}
           >
-            Назад
+            {t("common.back")}
           </Button>
         </div>
       </div>

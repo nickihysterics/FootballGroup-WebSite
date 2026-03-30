@@ -4,11 +4,11 @@ import {
   ImageOff,
   Newspaper,
   Quote,
-  Sparkles,
 } from "lucide-react";
 
 import { cn } from "@/shared/lib/cn.js";
 import usePageData from "@/features/page-data/usePageData.js";
+import { translateGalleryCategory, useI18n } from "@/shared/i18n/index.jsx";
 import Reveal from "@/shared/ui/Reveal/Reveal.jsx";
 import Surface from "@/shared/ui/Surface/Surface.jsx";
 
@@ -146,11 +146,13 @@ function EmptyStateCard({
 }
 
 function StoryAction({ label, href, dark = false }) {
+  const { t } = useI18n();
+
   if (!label && !href) return null;
 
   const content = (
     <>
-      <span className={cn("truncate")}>{label || "Открыть материал"}</span>
+      <span className={cn("truncate")}>{label || t("common.openMaterial")}</span>
       <span
         className={cn(
           "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
@@ -197,13 +199,14 @@ function StoryAction({ label, href, dark = false }) {
 }
 
 function HeroFeatureCard({ story, className }) {
+  const { t } = useI18n();
   if (!story) return null;
 
   const hasImage = Boolean(story.cover_url);
-  const title = story.title || "Главный материал клуба";
-  const excerpt = story.excerpt || "Официальный материал клуба.";
-  const publishedLabel = story.published_label || "Главная публикация";
-  const sourceLabel = story.source_name || "Открыть материал";
+  const title = story.title || t("media.storyLeadDefault");
+  const excerpt = story.excerpt || t("media.storyLeadExcerpt");
+  const publishedLabel = story.published_label || t("media.storyLeadLabel");
+  const sourceLabel = story.source_name || t("common.openMaterial");
 
   return (
     <article
@@ -275,12 +278,13 @@ function HeroFeatureCard({ story, className }) {
 }
 
 function HeroMiniCard({ story, className }) {
+  const { t } = useI18n();
   if (!story) return null;
 
   const hasImage = Boolean(story.cover_url);
-  const title = story.title || "Материал клуба";
-  const publishedLabel = story.published_label || "Публикация";
-  const sourceLabel = story.source_name || "Материал";
+  const title = story.title || t("media.sideMaterial");
+  const publishedLabel = story.published_label || t("media.story");
+  const sourceLabel = story.source_name || t("media.storyDefault");
 
   return (
     <article
@@ -331,8 +335,9 @@ function HeroMiniCard({ story, className }) {
 }
 
 function NewsCardVisual({ story }) {
+  const { t } = useI18n();
   const hasImage = Boolean(story?.cover_url);
-  const chipLabel = story?.source_name || "Публикация клуба";
+  const chipLabel = story?.source_name || t("media.newsChipDefault");
 
   return (
     <div
@@ -345,7 +350,7 @@ function NewsCardVisual({ story }) {
         <>
           <img
             src={story.cover_url}
-            alt={story.title || "Новость"}
+            alt={story.title || t("media.newsFallbackTitle")}
             className="absolute inset-0 h-full w-full object-cover object-top transition duration-700 ease-out group-hover:scale-[1.03]"
           />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,.02),rgba(7,31,67,.10))]" />
@@ -368,6 +373,7 @@ function NewsCardVisual({ story }) {
 }
 
 function NewsCard({ story }) {
+  const { t } = useI18n();
   return (
     <article
       className={cn(
@@ -378,20 +384,20 @@ function NewsCard({ story }) {
 
       <div className="flex flex-1 flex-col p-5 md:p-6">
         <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6f87a8]">
-          {story?.published_label || "Новости"}
+          {story?.published_label || t("media.newsFallbackLabel")}
         </div>
 
         <h3 className="mt-3 min-h-[5.4rem] font-[var(--font-display)] text-[clamp(1.45rem,1.9vw,1.95rem)] leading-[0.95] tracking-[-0.04em] text-[#122c4f] [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
-          {story?.title || "Материал клуба"}
+          {story?.title || t("media.newsFallbackTitle")}
         </h3>
 
         <p className="mt-3 min-h-[4.9rem] text-[15px] leading-7 text-[#617fa2] [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
-          {story?.excerpt || "Официальная публикация клуба."}
+          {story?.excerpt || t("media.newsFallbackExcerpt")}
         </p>
 
         <div className="mt-auto pt-5">
           <StoryAction
-            label={story?.source_name || "Открыть материал"}
+            label={story?.source_name || t("common.openMaterial")}
             href={story?.source_url}
           />
         </div>
@@ -401,6 +407,7 @@ function NewsCard({ story }) {
 }
 
 function GalleryCard({ item, featured = false }) {
+  const { language, t } = useI18n();
   const hasImage = Boolean(item?.image_url);
 
   return (
@@ -415,7 +422,7 @@ function GalleryCard({ item, featured = false }) {
       {hasImage ? (
         <img
           src={item.image_url}
-          alt={item.title || "Фото"}
+          alt={item.title || t("common.gallery")}
           className={cn(
             "absolute inset-0 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.05]",
           )}
@@ -440,7 +447,7 @@ function GalleryCard({ item, featured = false }) {
             "text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/68",
           )}
         >
-          {item?.accent || item?.category_label || "Галерея"}
+          {item?.accent || translateGalleryCategory(language, item?.category, item?.category_label) || t("common.gallery")}
         </div>
 
         <h3
@@ -451,7 +458,7 @@ function GalleryCard({ item, featured = false }) {
               : "max-w-[14ch] text-[clamp(1.3rem,1.9vw,1.85rem)]",
           )}
         >
-          {item?.title || "Фотоистория клуба"}
+          {item?.title || t("media.galleryFallbackTitle")}
         </h3>
 
         {item?.caption ? (
@@ -471,6 +478,7 @@ function GalleryCard({ item, featured = false }) {
 
 export default function MediaPage() {
   const { data } = usePageData();
+  const { t } = useI18n();
 
   const leadStory = data?.lead_story ?? null;
   const newsItems = Array.isArray(data?.news_items) ? data.news_items : [];
@@ -520,7 +528,7 @@ export default function MediaPage() {
                       "inline-flex min-h-10 items-center rounded-full border border-white/80 bg-white/90 px-4 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0d4ea5] shadow-[0_10px_24px_rgba(8,31,61,.04)] backdrop-blur-md",
                     )}
                   >
-                    Медиа клуба
+                    {t("media.badge")}
                   </div>
 
                   <h1
@@ -528,7 +536,7 @@ export default function MediaPage() {
                       "mt-5 max-w-[6ch] font-[var(--font-display)] text-[clamp(3rem,5.2vw,5.4rem)] leading-[0.84] tracking-[-0.07em] text-[#0b2344]",
                     )}
                   >
-                    Медиа и истории сезона
+                    {t("media.heroTitle")}
                   </h1>
 
                   <p
@@ -536,20 +544,20 @@ export default function MediaPage() {
                       "mt-5 max-w-[44ch] text-[16px] leading-8 text-[#5f7899]",
                     )}
                   >
-                    Главные публикации, клубные новости и визуальные истории.
+                    {t("media.heroDescription")}
                   </p>
 
                   <div className={cn("mt-8 grid gap-3 sm:grid-cols-3")}>
                     <InfoStat
-                      label="Главный материал"
+                      label={t("common.mainFeature")}
                       value={leadStory ? "01" : "—"}
                     />
                     <InfoStat
-                      label="Публикаций"
+                      label={t("common.publications")}
                       value={String(newsItems.length)}
                     />
                     <InfoStat
-                      label="Фотоисторий"
+                      label={t("common.photoStories")}
                       value={String(galleryItems.length)}
                     />
                   </div>
@@ -562,9 +570,9 @@ export default function MediaPage() {
                 ) : (
                   <EmptyStateCard
                     icon={Newspaper}
-                    eyebrow="Главная публикация"
-                    title="Свежий материал скоро появится"
-                    description="Мы обновляем медийную витрину клуба. Загляни чуть позже — здесь появится главная история дня."
+                    eyebrow={t("media.emptyLeadEyebrow")}
+                    title={t("media.emptyLeadTitle")}
+                    description={t("media.emptyLeadDescription")}
                     className={cn("min-h-[430px] md:min-h-[520px]")}
                     dark
                   />
@@ -579,16 +587,16 @@ export default function MediaPage() {
                     <>
                       <EmptyStateCard
                         icon={Newspaper}
-                        eyebrow="Лента клуба"
-                        title="Новые публикации готовятся"
-                        description="Скоро здесь появится ещё один материал редакционной витрины команды."
+                        eyebrow={t("media.emptyStreamEyebrow")}
+                        title={t("media.emptyStreamTitle")}
+                        description={t("media.emptyStreamDescription")}
                         dark
                       />
                       <EmptyStateCard
                         icon={Camera}
-                        eyebrow="Медиа"
-                        title="Обновление совсем скоро"
-                        description="Ещё один сюжет появится после следующего обновления раздела."
+                        eyebrow={t("media.emptyUpdateEyebrow")}
+                        title={t("media.emptyUpdateTitle")}
+                        description={t("media.emptyUpdateDescription")}
                         dark
                       />
                     </>
@@ -611,8 +619,8 @@ export default function MediaPage() {
             )}
           >
             <SectionIntro
-              eyebrow="Новости"
-              title="Редакционная лента клуба"
+              eyebrow={t("media.newsEyebrow")}
+              title={t("media.newsTitle")}
             />
 
             {newsItems.length ? (
@@ -624,9 +632,9 @@ export default function MediaPage() {
             ) : (
               <EmptyStateCard
                 icon={Newspaper}
-                eyebrow="Новости клуба"
-                title="Сейчас лента обновляется"
-                description="Новые публикации появятся здесь немного позже. Как только материалы будут готовы, раздел наполнится свежими новостями команды."
+                eyebrow={t("media.newsEmptyEyebrow")}
+                title={t("media.newsEmptyTitle")}
+                description={t("media.newsEmptyDescription")}
                 className={cn("min-h-[280px]")}
               />
             )}
@@ -645,8 +653,8 @@ export default function MediaPage() {
             )}
           >
             <SectionIntro
-              eyebrow="Галерея"
-              title="Фотоистории"
+              eyebrow={t("media.galleryEyebrow")}
+              title={t("media.galleryTitle")}
             />
 
             {galleryItems.length ? (
@@ -663,9 +671,9 @@ export default function MediaPage() {
             ) : (
               <EmptyStateCard
                 icon={ImageOff}
-                eyebrow="Фотогалерея"
-                title="Новые кадры скоро появятся"
-                description="Мы готовим свежую подборку фотографий команды. После обновления здесь появятся лучшие моменты матчдэй и атмосфера клуба."
+                eyebrow={t("media.galleryEmptyEyebrow")}
+                title={t("media.galleryEmptyTitle")}
+                description={t("media.galleryEmptyDescription")}
                 className={cn("min-h-[280px]")}
               />
             )}

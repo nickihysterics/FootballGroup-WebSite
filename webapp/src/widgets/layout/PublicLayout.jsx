@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 import {
@@ -6,29 +7,18 @@ import {
   normalizePathname,
   PAGE_ROUTES,
 } from "@/app/router/pageRoutes.js";
+import { getPageTitle, useI18n } from "@/shared/i18n/index.jsx";
 import usePagePayload from "@/features/page-data/usePagePayload.js";
 import SiteFooter from "@/widgets/layout/SiteFooter.jsx";
 import SiteHeader from "@/widgets/layout/SiteHeader.jsx";
 import RouteLoadingState from "@/widgets/states/RouteLoadingState.jsx";
-
-const FALLBACK_CLUB = {
-  name: "Газпром ФК",
-  short_name: "Газпром",
-  hero_badge: "Футбольный клуб",
-  stadium: "Газпром Арена",
-  city: "Санкт-Петербург",
-  mission: "Официальная витрина клуба.",
-  address: "",
-  email: "",
-  phone: "",
-  links: {},
-};
 
 export default function PublicLayout({
   initialPage,
   initialPathname,
   initialPayload,
 }) {
+  const { language, t } = useI18n();
   const location = useLocation();
   const currentPathname = normalizePathname(location.pathname);
 
@@ -57,6 +47,19 @@ export default function PublicLayout({
       ? pageState.payload
       : null;
 
+  const FALLBACK_CLUB = {
+    name: t("brand.defaultClubName"),
+    short_name: t("brand.defaultShortName"),
+    hero_badge: t("brand.defaultBadge"),
+    stadium: t("brand.defaultStadium"),
+    city: t("brand.defaultCity"),
+    mission: t("brand.defaultMission"),
+    address: "",
+    email: "",
+    phone: "",
+    links: {},
+  };
+
   const chromeClub = activePayload?.club || initialPayload?.club || FALLBACK_CLUB;
 
   const club = {
@@ -67,6 +70,16 @@ export default function PublicLayout({
       ...(chromeClub?.links || {}),
     },
   };
+
+  const resolvedPage = currentRoute?.page || initialRoute?.page || initialPage || "home";
+
+  useEffect(() => {
+    if (!isContentRoute) {
+      return;
+    }
+
+    document.title = getPageTitle(language, resolvedPage, club.short_name || club.name);
+  }, [club.name, club.short_name, isContentRoute, language, resolvedPage]);
 
   if (
     isContentRoute &&
@@ -79,10 +92,12 @@ export default function PublicLayout({
         replace
         state={{
           type: "runtime",
-          title: `Не удалось открыть раздел «${currentRoute.label}»`,
-          message:
+          title: t("layout.routeErrorTitle", {
+            label: t(`nav.${currentRoute.page}`),
+          }),
+          userMessage:
             pageState.error?.message ||
-            "Клиентская навигация не смогла получить данные страницы.",
+            t("layout.routeErrorMessage"),
         }}
       />
     );

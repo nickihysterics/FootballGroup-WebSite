@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import { normalizeTeamPlayer } from "@/shared/lib/teamPlayers.js";
 import PosterRings from "@/shared/ui/Team/PosterRings.jsx";
 
@@ -24,18 +25,19 @@ function CaptainMetric({ label, value }) {
 }
 
 export default function CaptainSpotlight({ captain, href }) {
-  const safeCaptain = normalizeTeamPlayer(captain);
+  const { language, t } = useI18n();
+  const safeCaptain = normalizeTeamPlayer(captain, language);
 
   if (!safeCaptain) {
     return (
       <div className="flex h-full min-h-[430px] items-center justify-center rounded-[32px] bg-[linear-gradient(180deg,#1557ad_0%,#0d3f80_34%,#0a2f63_68%,#082349_100%)] p-8 text-center text-white/72">
-        Капитан пока не указан
+        {t("team.captainUnset")}
       </div>
     );
   }
 
   const photo = safeCaptain.photo_url || "";
-  const positionLabel = safeCaptain.position_label || "Игрок";
+  const positionLabel = safeCaptain.position_label || t("positions.default");
   const metaLine = [positionLabel, safeCaptain.citizenship]
     .filter(Boolean)
     .join(" · ");
@@ -49,7 +51,7 @@ export default function CaptainSpotlight({ captain, href }) {
 
         <div className="relative h-[clamp(18.5rem,36vw,25rem)] overflow-hidden min-[571px]:max-xl:h-[26.25rem] xl:h-[clamp(18.5rem,36vw,25rem)]">
           <span className="absolute left-4 top-4 z-[6] inline-flex min-h-9 items-center rounded-full border border-white/10 bg-white/12 px-3.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-white backdrop-blur-md">
-            Капитан
+            {t("team.captain")}
           </span>
 
           <div className="absolute right-4 top-0 z-[5] font-[var(--font-display)] text-[94px] leading-none tracking-[-0.08em] text-white/10">
@@ -86,9 +88,9 @@ export default function CaptainSpotlight({ captain, href }) {
 
         <div className="relative z-[4] -mt-6 px-4 md:px-5">
           <div className="grid grid-cols-3 gap-2.5">
-            <CaptainMetric label="Матчи" value={safeCaptain.matches_for_club} />
-            <CaptainMetric label="Минуты" value={safeCaptain.minutes_for_club} />
-            <CaptainMetric label="Голы" value={safeCaptain.goals_for_club} />
+            <CaptainMetric label={t("common.matches")} value={safeCaptain.matches_for_club} />
+            <CaptainMetric label={t("common.minutes")} value={safeCaptain.minutes_for_club} />
+            <CaptainMetric label={t("common.goals")} value={safeCaptain.goals_for_club} />
           </div>
         </div>
 
@@ -105,7 +107,7 @@ export default function CaptainSpotlight({ captain, href }) {
             </div>
 
             <p className="mt-2.5 text-[14px] font-medium leading-6 text-white/72">
-              {metaLine || "Игрок первой команды"}
+              {metaLine || t("team.firstTeamPlayer")}
             </p>
           </div>
         </div>

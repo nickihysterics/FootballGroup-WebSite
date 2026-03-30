@@ -2,18 +2,19 @@ import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { cn } from "@/shared/lib/cn.js";
+import { formatHeightValue, formatWeightValue, useI18n } from "@/shared/i18n/index.jsx";
 import { normalizeTeamPlayer } from "@/shared/lib/teamPlayers.js";
 import Surface from "@/shared/ui/Surface/Surface.jsx";
 import PlayerPoster from "@/shared/ui/Team/PlayerPoster.jsx";
 
-function MetaLine(player) {
+function MetaLine(player, t, language) {
   const parts = [
     player.citizenship || null,
-    player.height_cm ? `${player.height_cm} см` : null,
-    player.weight_kg ? `${player.weight_kg} кг` : null,
+    player.height_cm ? formatHeightValue(language, player.height_cm) : null,
+    player.weight_kg ? formatWeightValue(language, player.weight_kg) : null,
   ].filter(Boolean);
 
-  return parts.join(" · ") || "Игрок первой команды";
+  return parts.join(" · ") || t("team.firstTeamPlayer");
 }
 
 function InfoCell({ label, value }) {
@@ -31,7 +32,8 @@ function InfoCell({ label, value }) {
 }
 
 export default function TeamPlayerCard({ player, to, className }) {
-  const safePlayer = normalizeTeamPlayer(player);
+  const { language, t } = useI18n();
+  const safePlayer = normalizeTeamPlayer(player, language);
 
   if (!safePlayer) return null;
 
@@ -77,7 +79,7 @@ export default function TeamPlayerCard({ player, to, className }) {
                 </h3>
 
                 <p className="mt-2.5 text-[13px] leading-6 text-[#5f7899]">
-                  {MetaLine(safePlayer)}
+                  {MetaLine(safePlayer, t, language)}
                 </p>
               </div>
 
@@ -87,10 +89,10 @@ export default function TeamPlayerCard({ player, to, className }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <InfoCell label="Матчи" value={safePlayer.matches_for_club} />
-              <InfoCell label="Минуты" value={safePlayer.minutes_for_club} />
-              <InfoCell label="Дата рождения" value={safePlayer.birth_date_label} />
-              <InfoCell label="Клуб" value={safePlayer.previous_club} />
+              <InfoCell label={t("common.matches")} value={safePlayer.matches_for_club} />
+              <InfoCell label={t("common.minutes")} value={safePlayer.minutes_for_club} />
+              <InfoCell label={t("common.birthDate")} value={safePlayer.birth_date_label} />
+              <InfoCell label={t("common.club")} value={safePlayer.previous_club} />
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import usePageData from "@/features/page-data/usePageData.js";
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import {
   buildVisibleGroups,
   collectAllPlayers,
@@ -16,11 +17,12 @@ import TeamMetricCard from "@/shared/ui/Team/TeamMetricCard.jsx";
 
 export default function TeamPage() {
   const { data } = usePageData();
+  const { language, t } = useI18n();
 
-  const visibleGroups = buildVisibleGroups(data);
-  const allPlayers = collectAllPlayers(data);
+  const visibleGroups = buildVisibleGroups(data, language);
+  const allPlayers = collectAllPlayers(data, language);
 
-  const captain = findCaptain(data, allPlayers);
+  const captain = findCaptain(data, allPlayers, language);
   const totalPlayers = allPlayers.length;
   const averageAge = getAveragePlayerAge(allPlayers);
   const captainHref = captain ? `/team/${captain.slug}/` : "/team/";
@@ -51,16 +53,15 @@ export default function TeamPage() {
 
                 <div className="relative z-[1]">
                   <div className="inline-flex min-h-10 items-center rounded-full border border-white/70 bg-white/75 px-4 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0d4ea5] shadow-[0_10px_24px_rgba(8,31,61,.04)] backdrop-blur-md">
-                    Первая команда
+                    {t("team.firstTeam")}
                   </div>
 
                   <h1 className="mt-4 max-w-[6ch] font-[var(--font-display)] text-[clamp(2.85rem,5vw,5.05rem)] leading-[0.84] tracking-[-0.065em] text-[#0b2344]">
-                    Состав команды
+                    {t("team.squadTitle")}
                   </h1>
 
                   <p className="mt-4 max-w-[48ch] text-[15px] leading-7 text-[#5f7899]">
-                    Игроки первой команды «Зенита» — состав клуба по игровым
-                    линиям.
+                    {t("team.squadDescription")}
                   </p>
 
                   <div className="mt-7 flex flex-wrap gap-3">
@@ -74,12 +75,12 @@ export default function TeamPage() {
                   </div>
 
                   <div className="mt-7 grid gap-3 md:grid-cols-3">
-                    <TeamMetricCard label="Игроков" value={totalPlayers} />
-                    <TeamMetricCard label="Линий состава" value={visibleGroups.length} />
+                    <TeamMetricCard label={t("team.metric.players")} value={totalPlayers} />
+                    <TeamMetricCard label={t("team.metric.lines")} value={visibleGroups.length} />
                     <TeamMetricCard
-                      label="Средний возраст"
+                      label={t("team.metric.averageAge")}
                       value={averageAge ? String(averageAge) : "—"}
-                      hint={averageAge ? "лет" : null}
+                      hint={averageAge ? t("common.years") : null}
                     />
                   </div>
                 </div>

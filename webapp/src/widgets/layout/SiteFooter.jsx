@@ -12,6 +12,7 @@ import {
 import { Link } from "react-router-dom";
 
 import { cn } from "@/shared/lib/cn.js";
+import { useI18n } from "@/shared/i18n/index.jsx";
 import GazpromMark from "@/shared/ui/BrandMark/GazpromMark.jsx";
 
 const labelClass = cn(
@@ -156,6 +157,8 @@ function FooterNavLink({ to, href, icon: Icon, children, external = false }) {
 }
 
 export default function SiteFooter({ club }) {
+  const { t } = useI18n();
+
   return (
     <footer
       className={cn(
@@ -197,7 +200,7 @@ export default function SiteFooter({ club }) {
               "mb-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-white/56",
             )}
           >
-            ПАО «Газпром»
+            {t("brand.company")}
           </p>
 
           <h2
@@ -216,7 +219,7 @@ export default function SiteFooter({ club }) {
         </div>
 
         <div className={cn("flex flex-col gap-3")}>
-          <span className={cn(labelClass)}>Арена</span>
+          <span className={cn(labelClass)}>{t("footer.arena")}</span>
           <a
             href={arenaMapUrl}
             target="_blank"
@@ -245,7 +248,7 @@ export default function SiteFooter({ club }) {
                       "text-[12px] font-semibold uppercase tracking-[0.12em] text-white/42",
                     )}
                   >
-                    Стадион
+                    {t("common.stadium")}
                   </div>
                   <div className={cn("truncate text-[17px] font-semibold text-white")}>
                     {club.stadium}
@@ -278,7 +281,7 @@ export default function SiteFooter({ club }) {
                       "text-[12px] font-semibold uppercase tracking-[0.12em] text-white/42",
                     )}
                   >
-                    Локация
+                    {t("footer.location")}
                   </div>
                   <div className={cn("text-[16px] font-medium text-white/86")}>
                     {club.city}
@@ -297,7 +300,7 @@ export default function SiteFooter({ club }) {
         </div>
 
         <div className={cn("flex flex-col gap-3")}>
-          <span className={cn(labelClass)}>Коммуникации</span>
+          <span className={cn(labelClass)}>{t("footer.communications")}</span>
 
           {club.email ? (
             <InfoLink href={`mailto:${club.email}`} icon={Mail}>
@@ -333,7 +336,7 @@ export default function SiteFooter({ club }) {
         </div>
 
         <div className={cn("flex flex-col gap-3")}>
-          <span className={cn(labelClass)}>Маршруты</span>
+          <span className={cn(labelClass)}>{t("footer.routes")}</span>
 
           <div
             className={cn(
@@ -342,7 +345,7 @@ export default function SiteFooter({ club }) {
           >
             <div className={cn("flex flex-col gap-3")}>
               <FooterNavLink to="/matches/" icon={Newspaper}>
-                Матч-центр
+                {t("common.matchCenter")}
               </FooterNavLink>
 
               {club.links.membership_url ? (
@@ -351,7 +354,7 @@ export default function SiteFooter({ club }) {
                   external
                   icon={Ticket}
                 >
-                  Абонементы
+                  {t("common.memberships")}
                 </FooterNavLink>
               ) : null}
 
@@ -361,7 +364,7 @@ export default function SiteFooter({ club }) {
                   external
                   icon={ShoppingBag}
                 >
-                  Магазин
+                  {t("common.shop")}
                 </FooterNavLink>
               ) : null}
 
@@ -371,7 +374,7 @@ export default function SiteFooter({ club }) {
                   external
                   icon={Crown}
                 >
-                  Программа гостеприимства
+                  {t("common.hospitality")}
                 </FooterNavLink>
               ) : null}
             </div>

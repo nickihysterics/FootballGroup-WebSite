@@ -2,6 +2,8 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
 
+import { useI18n } from "@/shared/i18n/index.jsx";
+
 const SOCCER_PANEL_COORDS = [
   [-1, 1.618, 0],
   [1, 1.618, 0],
@@ -178,7 +180,11 @@ function StadiumModel() {
   );
 }
 
-export default function StadiumScene({ clubName = "Газпром", stadiumName = "Газпром Арена", featuredMatch = null }) {
+export default function StadiumScene({ clubName, stadiumName, featuredMatch = null }) {
+  const { t } = useI18n();
+  const resolvedClubName = clubName || t("brand.defaultShortName");
+  const resolvedStadiumName = stadiumName || t("brand.defaultStadium");
+
   return (
     <div className="stadium-scene">
 	 <Canvas camera={{ position: [0, 2.95, 9.4], fov: 32 }} shadows dpr={[1, 1.35]}>
@@ -198,17 +204,17 @@ export default function StadiumScene({ clubName = "Газпром", stadiumName 
 	   <StadiumModel />
 	 </Canvas>
 	 <div className="stadium-scene__hud">
-	   <span>Матчдэй</span>
-	   <strong>{stadiumName}</strong>
-	   <p>{featuredMatch ? `${clubName} vs ${featuredMatch.opponent}` : "Домашняя арена клуба"}</p>
+	   <span>{t("stadium.matchday")}</span>
+	   <strong>{resolvedStadiumName}</strong>
+	   <p>{featuredMatch ? `${resolvedClubName} vs ${featuredMatch.opponent}` : t("stadium.homeArena")}</p>
 	 </div>
 	 <div className="stadium-scene__scoreboard">
-	   <span>{featuredMatch?.competition || "Домашний матч"}</span>
-	   <strong>{featuredMatch ? `${featuredMatch.date_label} · ${featuredMatch.time_label}` : clubName}</strong>
+	   <span>{featuredMatch?.competition || t("stadium.homeMatch")}</span>
+	   <strong>{featuredMatch ? `${featuredMatch.date_label} · ${featuredMatch.time_label}` : resolvedClubName}</strong>
 	 </div>
 	 <div className="stadium-scene__footer">
-	   <span>{clubName}</span>
-	   <strong>{featuredMatch ? `${clubName} vs ${featuredMatch.opponent}` : stadiumName}</strong>
+	   <span>{resolvedClubName}</span>
+	   <strong>{featuredMatch ? `${resolvedClubName} vs ${featuredMatch.opponent}` : resolvedStadiumName}</strong>
 	 </div>
     </div>
   );

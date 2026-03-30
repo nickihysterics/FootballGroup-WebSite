@@ -1,9 +1,11 @@
 import { cn } from "@/shared/lib/cn.js";
+import { formatPlayerCount, useI18n } from "@/shared/i18n/index.jsx";
 import { getGroupMeta } from "@/shared/lib/teamPlayers.js";
 import PositionGlyph from "@/shared/ui/Team/PositionGlyph.jsx";
 
 export default function GroupSectionHeader({ group, className }) {
-  const meta = getGroupMeta(group);
+  const { language } = useI18n();
+  const meta = getGroupMeta(group, language);
 
   return (
     <div
@@ -29,7 +31,7 @@ export default function GroupSectionHeader({ group, className }) {
             </span>
 
             <span className="inline-flex min-h-7 items-center rounded-full border border-[#d9e8f6] bg-white px-2.5 text-[11px] font-semibold text-[#527197]">
-              {group.players.length} игроков
+              {formatPlayerCount(language, group.players.length)}
             </span>
           </div>
 

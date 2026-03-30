@@ -1,3 +1,5 @@
+import { formatDateValue, formatHeightValue, translate } from "@/shared/i18n/index.jsx";
+
 const POSITION_ORDER = {
   GK: 1,
   DF: 2,
@@ -16,35 +18,35 @@ function safeNumber(value, fallback = 0) {
 
 export { POSITION_ORDER };
 
-export function resolvePositionLabel(position) {
+export function resolvePositionLabel(position, language = "ru") {
   const raw = String(position || "").toUpperCase();
 
-  if (raw === "GK") return "Вратарь";
-  if (raw === "DF") return "Защитник";
-  if (raw === "MF") return "Полузащитник";
-  if (raw === "FW") return "Нападающий";
+  if (raw === "GK") return translate(language, "positions.GK");
+  if (raw === "DF") return translate(language, "positions.DF");
+  if (raw === "MF") return translate(language, "positions.MF");
+  if (raw === "FW") return translate(language, "positions.FW");
 
-  return position || "Игрок";
+  return position || translate(language, "positions.default");
 }
 
-export function resolvePositionPlural(position) {
+export function resolvePositionPlural(position, language = "ru") {
   const raw = String(position || "").toUpperCase();
 
-  if (raw === "GK") return "Вратари";
-  if (raw === "DF") return "Защитники";
-  if (raw === "MF") return "Полузащитники";
-  if (raw === "FW") return "Нападающие";
+  if (raw === "GK") return translate(language, "positions.GK.plural");
+  if (raw === "DF") return translate(language, "positions.DF.plural");
+  if (raw === "MF") return translate(language, "positions.MF.plural");
+  if (raw === "FW") return translate(language, "positions.FW.plural");
 
-  return "Игроки";
+  return translate(language, "positions.defaultPlural");
 }
 
 export function resolvePositionKey(value) {
   const raw = String(value || "").toUpperCase();
 
-  if (raw.includes("GK") || raw.includes("ВРАТ")) return "GK";
-  if (raw.includes("DF") || raw.includes("ЗАЩ")) return "DF";
-  if (raw.includes("MF") || raw.includes("ПОЛУ")) return "MF";
-  if (raw.includes("FW") || raw.includes("НАП")) return "FW";
+  if (raw.includes("GK") || raw.includes("ВРАТ") || raw.includes("GOAL")) return "GK";
+  if (raw.includes("DF") || raw.includes("ЗАЩ") || raw.includes("DEF")) return "DF";
+  if (raw.includes("MF") || raw.includes("ПОЛУ") || raw.includes("MID")) return "MF";
+  if (raw.includes("FW") || raw.includes("НАП") || raw.includes("FORW")) return "FW";
 
   return raw || "FW";
 }
@@ -77,40 +79,40 @@ export function resolvePlayerSlug(player) {
     .replace(/\s+/g, "-")}`;
 }
 
-export function formatBirthDateRu(value) {
-  if (!value) return "—";
+export function formatBirthDate(value, language = "ru") {
+  if (!value) return translate(language, "common.na");
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return translate(language, "common.na");
 
-  return new Intl.DateTimeFormat("ru-RU", {
+  return formatDateValue(language, date, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(date);
+  });
 }
 
-export function normalizeTeamPlayer(player) {
+export function normalizeTeamPlayer(player, language = "ru") {
   if (!player) return null;
+
+  const position = resolvePositionKey(player.position || player.position_label);
 
   return {
     ...player,
-    full_name: player.full_name || "Игрок",
+    full_name: player.full_name || translate(language, "positions.default"),
     slug: player.slug || resolvePlayerSlug(player),
     photo_url: player.photo_url || player.remote_photo_url || "",
     number: player.number ?? "",
-    position: resolvePositionKey(player.position),
-    position_label:
-      player.position_label || resolvePositionLabel(player.position),
+    position,
+    position_label: resolvePositionLabel(position, language),
     matches_for_club: player.matches_for_club ?? 0,
     minutes_for_club: player.minutes_for_club ?? 0,
     goals_for_club: player.goals_for_club ?? 0,
     yellow_cards: player.yellow_cards ?? 0,
     red_cards: player.red_cards ?? 0,
     citizenship: player.citizenship || "",
-    previous_club: player.previous_club || "—",
-    birth_date_label:
-      player.birth_date_label || formatBirthDateRu(player.birth_date),
+    previous_club: player.previous_club || translate(language, "common.na"),
+    birth_date_label: formatBirthDate(player.birth_date, language),
     height_cm: player.height_cm ?? null,
     weight_kg: player.weight_kg ?? null,
     age: player.age ?? null,
@@ -123,7 +125,7 @@ export function normalizeTeamPlayer(player) {
   };
 }
 
-export function collectAllPlayers(data) {
+export function collectAllPlayers(data, language = "ru") {
   const rawPlayers =
     Array.isArray(data?.groups) && data.groups.length
       ? data.groups.flatMap((group) => group.players || [])
@@ -131,10 +133,10 @@ export function collectAllPlayers(data) {
         ? data.players
         : [];
 
-  return rawPlayers.map(normalizeTeamPlayer).filter(Boolean);
+  return rawPlayers.map((player) => normalizeTeamPlayer(player, language)).filter(Boolean);
 }
 
-export function buildVisibleGroups(data) {
+export function buildVisibleGroups(data, language = "ru") {
   const rawGroups =
     Array.isArray(data?.groups) && data.groups.length ? data.groups : null;
 
@@ -148,10 +150,10 @@ export function buildVisibleGroups(data) {
         return {
           ...group,
           key: resolvedKey,
-          label: group?.label || resolvePositionLabel(resolvedKey),
+          label: resolvePositionLabel(resolvedKey, language),
           anchorId: `team-group-${resolvedKey.toLowerCase()}-${index + 1}`,
           players: Array.isArray(group?.players)
-            ? group.players.map(normalizeTeamPlayer).filter(Boolean)
+            ? group.players.map((player) => normalizeTeamPlayer(player, language)).filter(Boolean)
             : [],
         };
       })
@@ -163,7 +165,7 @@ export function buildVisibleGroups(data) {
       );
   }
 
-  const players = collectAllPlayers(data);
+  const players = collectAllPlayers(data, language);
   const bucket = new Map();
 
   players.forEach((player) => {
@@ -172,7 +174,7 @@ export function buildVisibleGroups(data) {
     if (!bucket.has(key)) {
       bucket.set(key, {
         key,
-        label: resolvePositionLabel(key),
+        label: resolvePositionLabel(key, language),
         anchorId: `team-group-${key.toLowerCase()}`,
         players: [],
       });
@@ -195,8 +197,8 @@ export function buildVisibleGroups(data) {
     );
 }
 
-export function findCaptain(data, players = []) {
-  return normalizeTeamPlayer(data?.captain) || players.find((player) => player?.captain) || null;
+export function findCaptain(data, players = [], language = "ru") {
+  return normalizeTeamPlayer(data?.captain, language) || players.find((player) => player?.captain) || null;
 }
 
 export function getAveragePlayerAge(players = []) {
@@ -228,13 +230,13 @@ export function buildRelatedPlayers(players, currentPlayer, limit = 3) {
     .slice(0, limit);
 }
 
-export function getGroupMeta(group) {
+export function getGroupMeta(group, language = "ru") {
   const key = resolvePositionKey(group?.key || group?.label);
 
   if (key === "GK") {
     return {
       short: "GK",
-      label: "Вратарь",
+      label: translate(language, "positions.GK"),
       chipClass:
         "border-sky-200/90 bg-white text-sky-700 shadow-[0_12px_24px_rgba(59,130,246,.08)] hover:border-sky-300 hover:bg-sky-50/75",
       iconWrapClass: "bg-sky-50 text-sky-700 ring-1 ring-sky-200/80",
@@ -246,7 +248,7 @@ export function getGroupMeta(group) {
   if (key === "DF") {
     return {
       short: "DF",
-      label: "Защитник",
+      label: translate(language, "positions.DF"),
       chipClass:
         "border-indigo-200/90 bg-white text-indigo-700 shadow-[0_12px_24px_rgba(99,102,241,.08)] hover:border-indigo-300 hover:bg-indigo-50/70",
       iconWrapClass: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/80",
@@ -258,7 +260,7 @@ export function getGroupMeta(group) {
   if (key === "MF") {
     return {
       short: "MF",
-      label: "Полузащитник",
+      label: translate(language, "positions.MF"),
       chipClass:
         "border-violet-200/90 bg-white text-violet-700 shadow-[0_12px_24px_rgba(139,92,246,.08)] hover:border-violet-300 hover:bg-violet-50/70",
       iconWrapClass: "bg-violet-50 text-violet-700 ring-1 ring-violet-200/80",
@@ -269,7 +271,7 @@ export function getGroupMeta(group) {
 
   return {
     short: "FW",
-    label: "Нападающий",
+    label: translate(language, "positions.FW"),
     chipClass:
       "border-amber-200/90 bg-white text-amber-700 shadow-[0_12px_24px_rgba(245,158,11,.08)] hover:border-amber-300 hover:bg-amber-50/70",
     iconWrapClass: "bg-amber-50 text-amber-700 ring-1 ring-amber-200/80",
@@ -293,7 +295,7 @@ export function scrollToAnchor(anchorId, offset = 110) {
 export function getPlayerTone(player) {
   const raw = `${player?.position_label || ""} ${player?.position || ""}`.toLowerCase();
 
-  if (raw.includes("gk") || raw.includes("врат")) {
+  if (raw.includes("gk") || raw.includes("врат") || raw.includes("goal")) {
     return {
       heroBg:
         "bg-[linear-gradient(180deg,rgba(248,252,255,.98)_0%,rgba(234,245,255,.98)_45%,rgba(226,239,252,.98)_100%)]",
@@ -309,7 +311,7 @@ export function getPlayerTone(player) {
     };
   }
 
-  if (raw.includes("df") || raw.includes("защит")) {
+  if (raw.includes("df") || raw.includes("защит") || raw.includes("def")) {
     return {
       heroBg:
         "bg-[linear-gradient(180deg,rgba(250,252,255,.98)_0%,rgba(240,245,255,.98)_45%,rgba(231,239,255,.98)_100%)]",
@@ -325,7 +327,7 @@ export function getPlayerTone(player) {
     };
   }
 
-  if (raw.includes("mf") || raw.includes("полузащит")) {
+  if (raw.includes("mf") || raw.includes("полузащит") || raw.includes("mid")) {
     return {
       heroBg:
         "bg-[linear-gradient(180deg,rgba(251,250,255,.98)_0%,rgba(245,240,255,.98)_45%,rgba(238,232,255,.98)_100%)]",
@@ -356,25 +358,25 @@ export function getPlayerTone(player) {
   };
 }
 
-export function getPlayerHeroStats(player) {
+export function getPlayerHeroStats(player, language = "ru") {
   const position = resolvePositionKey(player.position);
 
   if (position === "GK") {
     return [
-      { label: "Матчи", value: player.matches_for_club },
-      { label: "Минуты", value: player.minutes_for_club },
-      { label: "Рост", value: player.height_cm ? `${player.height_cm} см` : "—" },
+      { label: translate(language, "common.matches"), value: player.matches_for_club },
+      { label: translate(language, "common.minutes"), value: player.minutes_for_club },
+      { label: translate(language, "common.height"), value: formatHeightValue(language, player.height_cm) },
     ];
   }
 
   return [
-    { label: "Матчи", value: player.matches_for_club },
-    { label: "Минуты", value: player.minutes_for_club },
-    { label: "Голы", value: player.goals_for_club },
+    { label: translate(language, "common.matches"), value: player.matches_for_club },
+    { label: translate(language, "common.minutes"), value: player.minutes_for_club },
+    { label: translate(language, "common.goals"), value: player.goals_for_club },
   ];
 }
 
-export function buildPlayerTraits(player) {
+export function buildPlayerTraits(player, language = "ru") {
   const position = resolvePositionKey(player.position);
   const matches = safeNumber(player.matches_for_club);
   const minutes = safeNumber(player.minutes_for_club);
@@ -394,82 +396,104 @@ export function buildPlayerTraits(player) {
 
   if (position === "GK") {
     return [
-      { label: "Реакция", value: clamp(72 + minutesBoost + ageSpeedAdjust * 0.35, 58, 97) },
-      { label: "Позиция", value: clamp(68 + matchesBoost + minutes / 420, 58, 96) },
-      { label: "Игра руками", value: clamp(70 + matchesBoost, 55, 96) },
-      { label: "Игра ногами", value: clamp(58 + minutes / 520 + goalBoost * 0.2, 46, 88) },
-      { label: "Хладнокровие", value: clamp(74 + matches / 14 - disciplinePenalty * 0.18, 50, 95) },
+      { label: translate(language, "player.trait.reaction"), value: clamp(72 + minutesBoost + ageSpeedAdjust * 0.35, 58, 97) },
+      { label: translate(language, "player.trait.positioning"), value: clamp(68 + matchesBoost + minutes / 420, 58, 96) },
+      { label: translate(language, "player.trait.handling"), value: clamp(70 + matchesBoost, 55, 96) },
+      { label: translate(language, "player.trait.footwork"), value: clamp(58 + minutes / 520 + goalBoost * 0.2, 46, 88) },
+      { label: translate(language, "player.trait.composure"), value: clamp(74 + matches / 14 - disciplinePenalty * 0.18, 50, 95) },
     ];
   }
 
   if (position === "DF") {
     return [
-      { label: "Скорость", value: clamp(66 + ageSpeedAdjust + (180 - Math.abs(height - 180)) * 0.2, 54, 92) },
-      { label: "Выносливость", value: clamp(68 + minutesBoost + matches / 15, 56, 96) },
-      { label: "Отбор", value: clamp(72 + matchesBoost + sizeBoost * 0.35, 58, 97) },
-      { label: "Мощь", value: clamp(70 + sizeBoost, 56, 95) },
-      { label: "Дисциплина", value: clamp(88 - disciplinePenalty + matches / 28, 40, 94) },
+      { label: translate(language, "player.trait.speed"), value: clamp(66 + ageSpeedAdjust + (180 - Math.abs(height - 180)) * 0.2, 54, 92) },
+      { label: translate(language, "player.trait.stamina"), value: clamp(68 + minutesBoost + matches / 15, 56, 96) },
+      { label: translate(language, "player.trait.tackling"), value: clamp(72 + matchesBoost + sizeBoost * 0.35, 58, 97) },
+      { label: translate(language, "player.trait.power"), value: clamp(70 + sizeBoost, 56, 95) },
+      { label: translate(language, "player.trait.discipline"), value: clamp(88 - disciplinePenalty + matches / 28, 40, 94) },
     ];
   }
 
   if (position === "MF") {
     return [
-      { label: "Скорость", value: clamp(68 + ageSpeedAdjust, 55, 93) },
-      { label: "Выносливость", value: clamp(70 + minutesBoost + matches / 16, 58, 97) },
-      { label: "Техника", value: clamp(72 + goalBoost * 0.35, 58, 97) },
-      { label: "Креативность", value: clamp(70 + goalBoost * 0.3 + matches / 18, 56, 95) },
-      { label: "Игровой интеллект", value: clamp(72 + matches / 10 + age * 0.15, 58, 96) },
+      { label: translate(language, "player.trait.speed"), value: clamp(68 + ageSpeedAdjust, 55, 93) },
+      { label: translate(language, "player.trait.stamina"), value: clamp(70 + minutesBoost + matches / 16, 58, 97) },
+      { label: translate(language, "player.trait.technique"), value: clamp(72 + goalBoost * 0.35, 58, 97) },
+      { label: translate(language, "player.trait.creativity"), value: clamp(70 + goalBoost * 0.3 + matches / 18, 56, 95) },
+      { label: translate(language, "player.trait.iq"), value: clamp(72 + matches / 10 + age * 0.15, 58, 96) },
     ];
   }
 
   return [
-    { label: "Скорость", value: clamp(72 + ageSpeedAdjust, 58, 96) },
-    { label: "Выносливость", value: clamp(66 + minutesBoost + matches / 16, 56, 95) },
-    { label: "Удар", value: clamp(72 + goalBoost, 55, 98) },
-    { label: "Резкость", value: clamp(70 + goalBoost * 0.4 + ageSpeedAdjust * 0.5, 56, 96) },
-    { label: "Мощь", value: clamp(66 + sizeBoost * 0.8, 54, 94) },
+    { label: translate(language, "player.trait.speed"), value: clamp(72 + ageSpeedAdjust, 58, 96) },
+    { label: translate(language, "player.trait.stamina"), value: clamp(66 + minutesBoost + matches / 16, 56, 95) },
+    { label: translate(language, "player.trait.shot"), value: clamp(72 + goalBoost, 55, 98) },
+    { label: translate(language, "player.trait.sharpness"), value: clamp(70 + goalBoost * 0.4 + ageSpeedAdjust * 0.5, 56, 96) },
+    { label: translate(language, "player.trait.power"), value: clamp(66 + sizeBoost * 0.8, 54, 94) },
   ];
 }
 
-export function buildPlayerBiography(player) {
+export function buildPlayerBiography(player, language = "ru") {
   const birthInfo =
-    player.birth_date_label !== "—"
-      ? `Родился ${player.birth_date_label}`
-      : "Дата рождения не указана";
+    player.birth_date_label !== translate(language, "common.na")
+      ? resolveBirthInfo(language, player.birth_date_label)
+      : translate(language, "player.bio.birthUnknown");
 
-  const birthPlace = player.place_of_birth ? ` в ${player.place_of_birth}` : "";
+  const birthPlace = player.place_of_birth
+    ? resolveLanguageSpecificBirthPlace(language, player.place_of_birth)
+    : "";
   const nationality =
-    player.citizenship && player.citizenship !== "—"
-      ? ` Представляет ${player.citizenship}.`
+    player.citizenship && player.citizenship !== translate(language, "common.na")
+      ? translate(language, "player.bio.represents", { value: player.citizenship })
       : "";
   const previousClub =
-    player.previous_club && player.previous_club !== "—"
-      ? ` До перехода в клуб выступал за ${player.previous_club}.`
+    player.previous_club && player.previous_club !== translate(language, "common.na")
+      ? translate(language, "player.bio.previousClub", { value: player.previous_club })
       : "";
-  const shirtNumber = player.number ? ` Играет под номером #${player.number}.` : "";
+  const shirtNumber = player.number ? translate(language, "player.bio.shirtNumber", { value: player.number }) : "";
   const captain =
     player.captain
-      ? " Является одним из лидеров команды и носит капитанскую повязку."
+      ? translate(language, "player.bio.captain")
       : "";
 
-  let roleText = " Игрок первой команды и важная часть текущей обоймы клуба.";
+  let roleText = translate(language, "player.bio.role.default");
 
   if (player.position === "GK") {
-    roleText =
-      " Вратарь, который отвечает за надёжность последнего рубежа, игру на выходах и контроль штрафной.";
+    roleText = translate(language, "player.bio.role.GK");
   } else if (player.position === "DF") {
-    roleText =
-      " Защитник, который даёт команде баланс в обороне, работу в единоборствах и надёжность без мяча.";
+    roleText = translate(language, "player.bio.role.DF");
   } else if (player.position === "MF") {
-    roleText =
-      " Полузащитник, который помогает команде в темпе игры, продвижении мяча и связке между линиями.";
+    roleText = translate(language, "player.bio.role.MF");
   } else if (player.position === "FW") {
-    roleText =
-      " Нападающий, который отвечает за остроту впереди, рывки за спину и завершение эпизодов.";
+    roleText = translate(language, "player.bio.role.FW");
   }
 
   return [
-    `${player.full_name} — ${player.position_label.toLowerCase()} первой команды. ${birthInfo}${birthPlace}.${nationality}${previousClub}${shirtNumber}`.trim(),
+    translate(language, "player.bio.summary", {
+      name: player.full_name,
+      position: player.position_label.toLowerCase(),
+      birthInfo,
+      birthPlace,
+      nationality,
+      previousClub,
+      shirtNumber,
+    }).trim(),
     `${roleText}${captain}`.trim(),
   ];
+}
+
+function resolveLanguageSpecificBirthPlace(language, placeOfBirth) {
+  if (language === "en") {
+    return ` in ${placeOfBirth}`;
+  }
+
+  return ` в ${placeOfBirth}`;
+}
+
+function resolveBirthInfo(language, birthDateLabel) {
+  if (language === "en") {
+    return `Born on ${birthDateLabel}`;
+  }
+
+  return `Родился ${birthDateLabel}`;
 }
