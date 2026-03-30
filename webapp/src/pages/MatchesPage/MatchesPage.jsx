@@ -182,7 +182,7 @@ export default function MatchesPage() {
               variant="featured"
               topRight={
                 featuredMatch?.kickoff_iso ? (
-                  <CountdownChip kickoffIso={featuredMatch.kickoff_iso} />
+                  <CountdownChip kickoffIso={featuredMatch.kickoff_iso} dark />
                 ) : null
               }
             />
@@ -190,27 +190,26 @@ export default function MatchesPage() {
         </section>
       </Reveal>
 
-      <Reveal y={20} duration={0.46}>
+      <Reveal y={12} blur={3} duration={0.4} amount={0.01}>
         <section className={cn("mt-8")}>
           <Surface
             variant="transparent"
             padding="lg"
             radius="xl"
             className={cn(
-              "overflow-visible before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(180deg,rgba(255,255,255,.22),transparent_28%)]",
+              "isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(180deg,rgba(255,255,255,.22),transparent_28%)]",
             )}
           >
             <SectionHeading
               eyebrow="Календарь сезона"
               title="Полный календарь сезона: от афиши до финального счёта"
-              description="Фильтруй сезон через удобные селекты и быстро находи нужную встречу."
               className={cn("mb-6")}
               titleClassName={cn("max-w-[14ch]")}
             />
 
-            <div className={cn("grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)_260px_170px] xl:items-end")}>
+            <div className={cn("relative z-[2] grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)_260px_170px] xl:items-end")}>
               <div>
-                <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7c94af]")}>
+                <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#5e7697]")}>
                   Тип матчей
                 </div>
                 <Select
@@ -223,7 +222,7 @@ export default function MatchesPage() {
               </div>
 
               <div>
-                <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7c94af]")}>
+                <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#5e7697]")}>
                   Турнир
                 </div>
                 <Select
@@ -236,7 +235,7 @@ export default function MatchesPage() {
               </div>
 
               <div>
-                <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7c94af]")}>
+                <div className={cn("mb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#5e7697]")}>
                   Месяц
                 </div>
                 <Select
@@ -250,14 +249,14 @@ export default function MatchesPage() {
 
               <div
                 className={cn(
-                  "inline-flex min-h-[54px] items-center justify-center rounded-full border border-[#d9e7f4] bg-white/90 px-4 text-[13px] font-semibold text-[#5f7d9f] shadow-[0_10px_22px_rgba(8,31,61,.04)]",
+                  "inline-flex min-h-[54px] items-center justify-center rounded-full border border-[#d9e7f4] bg-white/90 px-4 text-[13px] font-semibold text-[#4f6b8d] shadow-[0_10px_22px_rgba(8,31,61,.04)]",
                 )}
               >
                 В ленте: {filteredMatches.length}
               </div>
             </div>
 
-            <div className={cn("mt-8 flex flex-col gap-6")}>
+            <div className={cn("relative z-[1] mt-8 flex flex-col gap-6")}>
               {groupedMatches.length ? (
                 groupedMatches.map((group) => (
                   <div key={group.monthKey}>
@@ -272,7 +271,7 @@ export default function MatchesPage() {
 
                       <span
                         className={cn(
-                          "inline-flex min-h-8 items-center rounded-full border border-[#d9e7f4] bg-white/90 px-3 text-[12px] font-semibold text-[#59779b]",
+                          "inline-flex min-h-8 items-center rounded-full border border-[#d9e7f4] bg-white/90 px-3 text-[12px] font-semibold text-[#456487]",
                         )}
                       >
                         {group.items.length} матч{group.items.length === 1 ? "" : group.items.length < 5 ? "а" : "ей"}
@@ -293,7 +292,7 @@ export default function MatchesPage() {
               ) : (
                 <div
                   className={cn(
-                    "rounded-[28px] border border-dashed border-[#d8e5f2] bg-[#f8fbff] px-5 py-6 text-[15px] leading-7 text-[#6983a5]",
+                    "rounded-[28px] border border-dashed border-[#d8e5f2] bg-[#f8fbff] px-5 py-6 text-[15px] leading-7 text-[#567291]",
                   )}
                 >
                   По текущим фильтрам матчей не найдено.

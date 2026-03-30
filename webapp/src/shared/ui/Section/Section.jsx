@@ -7,15 +7,20 @@ export default function Section({
   variant = "default",
   padded = true,
 }) {
+  const padding = padded ? "md" : "none";
+
   if (variant === "dark") {
     return (
       <Surface
         variant="dark"
-        padding={padded ? "md" : "none"}
-        radius="xl"
-        className={cn("mt-6", className)}
+        padding={padding}
+        radius="2xl"
+        className={cn(
+          "relative mt-6 border border-white/10 bg-[radial-gradient(circle_at_100%_100%,rgba(63,146,255,.18),transparent_26%),radial-gradient(circle_at_0%_0%,rgba(255,255,255,.03),transparent_20%),linear-gradient(180deg,#0c2d61_0%,#0a2958_48%,#08244e_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,.10),0_28px_72px_rgba(5,18,44,.24)] md:mt-8",
+          className,
+        )}
       >
-        {children}
+        <div className="relative z-[1]">{children}</div>
       </Surface>
     );
   }
@@ -23,14 +28,14 @@ export default function Section({
   return (
     <Surface
       variant="transparent"
-      padding={padded ? "md" : "none"}
-      radius="xl"
+      padding={padding}
+      radius="2xl"
       className={cn(
-        "mt-6 before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(180deg,rgba(255,255,255,.22),transparent_28%)]",
+        "relative mt-6 border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,.58),rgba(242,248,255,.34))] backdrop-blur-[26px] shadow-[inset_0_1px_0_rgba(255,255,255,.84),0_26px_70px_rgba(8,31,61,.08)] md:mt-8",
         className,
       )}
     >
-      {children}
+      <div className="relative z-[1]">{children}</div>
     </Surface>
   );
 }

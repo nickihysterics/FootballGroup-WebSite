@@ -330,80 +330,66 @@ function HeroMiniCard({ story, className }) {
   );
 }
 
-function NewsCard({ story }) {
+function NewsCardVisual({ story }) {
   const hasImage = Boolean(story?.cover_url);
+  const chipLabel = story?.source_name || "Публикация клуба";
 
+  return (
+    <div
+      className={cn(
+        "relative shrink-0 overflow-hidden rounded-t-[30px] border-b border-[#e5eff8] bg-[linear-gradient(180deg,#dceaf6_0%,#eef5fb_100%)]",
+        "h-[220px] md:h-[236px]",
+      )}
+    >
+      {hasImage ? (
+        <>
+          <img
+            src={story.cover_url}
+            alt={story.title || "Новость"}
+            className="absolute inset-0 h-full w-full object-cover object-top transition duration-700 ease-out group-hover:scale-[1.03]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,.02),rgba(7,31,67,.10))]" />
+        </>
+      ) : (
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(122,210,255,.20),transparent_34%),linear-gradient(180deg,#dceaf6_0%,#eef5fb_100%)]" />
+          <div className="pointer-events-none absolute right-[-24px] top-[-24px] h-28 w-28 rounded-full bg-[#8fdcff]/18 blur-2xl" />
+        </>
+      )}
+
+      <div className="absolute left-5 top-5">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#d8e7f5] bg-white/88 px-3 py-2 text-[12px] font-semibold text-[#285489] shadow-[0_8px_20px_rgba(8,31,61,.04)] backdrop-blur-md">
+          <Newspaper className="h-4 w-4" strokeWidth={1.8} />
+          {chipLabel}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NewsCard({ story }) {
   return (
     <article
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-[30px] border border-white/80 bg-white/88 shadow-[0_18px_46px_rgba(8,31,61,.08)] backdrop-blur-xl",
+        "group flex h-full flex-col overflow-hidden rounded-[30px] border border-white/80 bg-white/88 shadow-[0_18px_46px_rgba(8,31,61,.08)] backdrop-blur-xl transition duration-300 hover:-translate-y-0.5",
       )}
     >
-      <div
-        className={cn(
-          "relative shrink-0 overflow-hidden bg-[linear-gradient(180deg,#dceaf6_0%,#eef5fb_100%)]",
-          hasImage ? "h-[240px]" : "h-[164px]",
-        )}
-      >
-        {hasImage ? (
-          <>
-            <img
-              src={story.cover_url}
-              alt={story.title || "Новость"}
-              className={cn(
-                "h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]",
-              )}
-            />
-            <div
-              className={cn(
-                "absolute inset-0 bg-[linear-gradient(180deg,rgba(7,31,67,.02),rgba(7,31,67,.14))]",
-              )}
-            />
-          </>
-        ) : (
-          <div
-            className={cn(
-              "flex h-full items-end bg-[radial-gradient(circle_at_top_left,rgba(122,210,255,.22),transparent_34%),linear-gradient(180deg,rgba(243,249,255,.98),rgba(226,239,250,.98))] p-5",
-            )}
-          >
-            <div
-              className={cn(
-                "inline-flex items-center gap-2 rounded-full border border-[#d8e7f5] bg-white/88 px-3 py-2 text-[12px] font-semibold text-[#285489]",
-              )}
-            >
-              <Newspaper className="h-4 w-4" strokeWidth={1.8} />
-              Публикация клуба
-            </div>
-          </div>
-        )}
-      </div>
+      <NewsCardVisual story={story} />
 
-      <div className={cn("flex flex-1 flex-col p-5 md:p-6")}>
-        <div
-          className={cn(
-            "text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6f87a8]",
-          )}
-        >
+      <div className="flex flex-1 flex-col p-5 md:p-6">
+        <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6f87a8]">
           {story?.published_label || "Новости"}
         </div>
 
-        <h3
-          className={cn(
-            "mt-3 min-h-[5.4rem] font-[var(--font-display)] text-[clamp(1.45rem,1.9vw,1.95rem)] leading-[0.95] tracking-[-0.04em] text-[#122c4f] [display:-webkit-box] [-webkit-box-orient:vertical] overflow-hidden [-webkit-line-clamp:3]",
-          )}
-        >
+        <h3 className="mt-3 min-h-[5.4rem] font-[var(--font-display)] text-[clamp(1.45rem,1.9vw,1.95rem)] leading-[0.95] tracking-[-0.04em] text-[#122c4f] [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
           {story?.title || "Материал клуба"}
         </h3>
 
-        <p
-          className={cn(
-            "mt-3 min-h-[4.9rem] text-[15px] leading-7 text-[#617fa2] [display:-webkit-box] [-webkit-box-orient:vertical] overflow-hidden [-webkit-line-clamp:3]",
-          )}
-        >
+        <p className="mt-3 min-h-[4.9rem] text-[15px] leading-7 text-[#617fa2] [display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
           {story?.excerpt || "Официальная публикация клуба."}
         </p>
 
-        <div className={cn("mt-auto pt-5")}>
+        <div className="mt-auto pt-5">
           <StoryAction
             label={story?.source_name || "Открыть материал"}
             href={story?.source_url}

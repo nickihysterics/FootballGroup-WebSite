@@ -1,19 +1,32 @@
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { CalendarClock, Radio, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
-function formatCountdown(kickoffIso) {
+import { cn } from "@/shared/lib/cn.js";
+
+function getCountdownData(kickoffIso) {
   if (!kickoffIso) {
-    return "Детали матча";
+    return {
+      mode: "unknown",
+      label: "Детали матча",
+    };
   }
 
   const kickoff = dayjs(kickoffIso);
   if (!kickoff.isValid()) {
-    return "Детали матча";
+    return {
+      mode: "unknown",
+      label: "Детали матча",
+    };
   }
 
   const diffMinutes = kickoff.diff(dayjs(), "minute");
+
   if (diffMinutes <= 0) {
-    return "Матч начался";
+    return {
+      mode: "live",
+      label: "Матч начался",
+    };
   }
 
   const days = Math.floor(diffMinutes / (60 * 24));
@@ -21,20 +34,62 @@ function formatCountdown(kickoffIso) {
   const minutes = diffMinutes % 60;
 
   if (days > 0) {
-    return `${days}д ${hours}ч ${minutes}м`;
+    return {
+      mode: "upcoming",
+      label: `${days}д ${hours}ч ${minutes}м`,
+    };
   }
 
-  return `${hours}ч ${minutes}м`;
+  return {
+    mode: "upcoming",
+    label: `${hours}ч ${minutes}м`,
+  };
 }
 
-export default function CountdownChip({ kickoffIso }) {
-  const [label, setLabel] = useState(() => formatCountdown(kickoffIso));
+export default function CountdownChip({ kickoffIso, dark = false, className }) {
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    setLabel(formatCountdown(kickoffIso));
-    const timer = window.setInterval(() => setLabel(formatCountdown(kickoffIso)), 60000);
+    const timer = window.setInterval(() => setTick((value) => value + 1), 60000);
     return () => window.clearInterval(timer);
-  }, [kickoffIso]);
+  }, []);
 
-  return <div className="countdown-chip">{label}</div>;
+  const data = useMemo(() => getCountdownData(kickoffIso), [kickoffIso, tick]);
+
+  const Icon =
+    data.mode === "live"
+      ? Radio
+      : data.mode === "unknown"
+        ? Sparkles
+        : CalendarClock;
+
+  return (
+    <div
+      className={cn(
+        "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 text-[13px] font-bold shadow-[0_10px_24px_rgba(8,31,61,.10)] backdrop-blur-md transition duration-200",
+        dark && data.mode === "live" && "border-white/16 bg-white/12 text-white",
+        dark && data.mode === "upcoming" && "border-white/20 bg-white text-[#0b2344]",
+        dark && data.mode === "unknown" && "border-white/16 bg-white/10 text-white/88",
+        !dark && data.mode === "live" && "border-[#ffd9d9] bg-[#fff2f2] text-[#b42318]",
+        !dark && data.mode === "upcoming" && "border-[#d7e6f4] bg-white text-[#0b2344]",
+        !dark && data.mode === "unknown" && "border-[#d7e6f4] bg-white text-[#5f7899]",
+        className,
+      )}
+    >
+      <Icon
+        className={cn(
+          "h-4 w-4 shrink-0",
+          dark && data.mode === "live" && "text-white",
+          dark && data.mode === "upcoming" && "text-[#0d4ea5]",
+          dark && data.mode === "unknown" && "text-white/72",
+          !dark && data.mode === "live" && "text-[#b42318]",
+          !dark && data.mode === "upcoming" && "text-[#0d4ea5]",
+          !dark && data.mode === "unknown" && "text-[#7b91ac]",
+        )}
+        strokeWidth={2}
+      />
+
+      <span>{data.label}</span>
+    </div>
+  );
 }

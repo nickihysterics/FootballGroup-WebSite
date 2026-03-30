@@ -5,15 +5,15 @@ import { cn } from "@/shared/lib/cn.js";
 
 const variantClassMap = {
   primary:
-    "border border-[#1976e6] bg-[linear-gradient(180deg,#2d94f6_0%,#1678e6_100%)] text-white shadow-[0_12px_28px_rgba(22,120,230,.22)] hover:-translate-y-0.5 hover:bg-[linear-gradient(180deg,#369bfd_0%,#197dea_100%)] hover:shadow-[0_16px_34px_rgba(22,120,230,.28)] focus:ring-sky-500/20 [&>svg]:!text-white [&>span]:!text-white",
+    "border border-white/36 bg-[linear-gradient(180deg,rgba(75,174,255,.96),rgba(17,114,229,.92))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.26),0_14px_32px_rgba(22,120,230,.32)] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,.3),0_20px_40px_rgba(22,120,230,.36)] [&>svg]:!text-white [&>span]:!text-white",
   secondary:
-    "border border-[#d8e4f2] bg-[#f8fbff] text-[#17406f] shadow-[0_8px_18px_rgba(15,23,42,.05)] hover:-translate-y-0.5 hover:border-[#c6d8eb] hover:bg-[#f2f8ff]",
+    "border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,.76),rgba(243,248,255,.54))] text-[#12355f] shadow-[inset_0_1px_0_rgba(255,255,255,.86),0_10px_24px_rgba(8,31,61,.08)] hover:-translate-y-0.5 hover:bg-[linear-gradient(180deg,rgba(255,255,255,.82),rgba(245,249,255,.64))]",
   ghost:
-    "border border-[#d9e5f2] bg-white text-[#102544] shadow-[0_8px_18px_rgba(8,31,61,.05)] hover:-translate-y-0.5 hover:border-[#c4d8ee] hover:bg-[#fbfdff]",
+    "border border-white/54 bg-white/[0.42] text-[#102544] shadow-[inset_0_1px_0_rgba(255,255,255,.72),0_10px_24px_rgba(8,31,61,.06)] hover:-translate-y-0.5 hover:bg-white/[0.56]",
   dark:
-    "border border-transparent bg-slate-950 text-white hover:-translate-y-0.5 hover:bg-slate-800",
+    "border border-white/12 bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_12px_28px_rgba(7,31,67,.18)] hover:-translate-y-0.5 hover:bg-white/[0.12]",
   soft:
-    "border border-sky-100 bg-sky-50 text-sky-800 hover:-translate-y-0.5 hover:bg-sky-100",
+    "border border-white/60 bg-[linear-gradient(180deg,rgba(240,248,255,.9),rgba(230,242,255,.64))] text-[#0f4c90] shadow-[inset_0_1px_0_rgba(255,255,255,.82),0_10px_24px_rgba(8,31,61,.06)] hover:-translate-y-0.5 hover:bg-[linear-gradient(180deg,rgba(244,250,255,.96),rgba(235,245,255,.72))]",
 };
 
 const sizeClassMap = {
@@ -49,7 +49,7 @@ const Button = forwardRef(function Button(
       type={isButton ? type || "button" : undefined}
       disabled={isButton ? disabled || loading : undefined}
       className={cn(
-        "inline-flex cursor-pointer select-none items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 ease-out focus:outline-none focus:ring-2 disabled:pointer-events-none disabled:opacity-60",
+        "inline-flex cursor-pointer select-none items-center justify-center gap-2 rounded-full font-semibold backdrop-blur-[18px] transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-sky-500/20 disabled:pointer-events-none disabled:opacity-60",
         sizeClassMap[size] || sizeClassMap.md,
         variantClassMap[variant] || variantClassMap.primary,
         fullWidth && "w-full",
@@ -59,19 +59,28 @@ const Button = forwardRef(function Button(
       {...props}
     >
       {loading ? (
-        <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.9} />
+        <LoaderCircle
+          className="relative z-[1] h-4 w-4 animate-spin"
+          strokeWidth={1.9}
+        />
       ) : null}
 
       {!loading && LeftIcon ? (
-        <LeftIcon className="h-4 w-4 shrink-0 text-current" strokeWidth={1.9} />
+        <LeftIcon
+          className="relative z-[1] h-4 w-4 shrink-0 text-current"
+          strokeWidth={1.9}
+        />
       ) : null}
 
       {(!iconOnly || !hasSideIcons) && children ? (
-        <span className="text-current">{children}</span>
+        <span className="relative z-[1] text-current">{children}</span>
       ) : null}
 
       {!loading && RightIcon ? (
-        <RightIcon className="h-4 w-4 shrink-0 text-current" strokeWidth={1.9} />
+        <RightIcon
+          className="relative z-[1] h-4 w-4 shrink-0 text-current"
+          strokeWidth={1.9}
+        />
       ) : null}
     </Comp>
   );

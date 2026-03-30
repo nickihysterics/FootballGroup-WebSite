@@ -167,7 +167,7 @@ function ContactAction({ href, icon: Icon, title, value, external = false }) {
     >
       <span
         className={cn(
-          "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(109,207,255,0.14),transparent_42%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+          "pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_top_left,rgba(109,207,255,0.14),transparent_42%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100",
         )}
       />
 
@@ -219,7 +219,7 @@ function ChannelCard({ channel }) {
     >
       <span
         className={cn(
-          "pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+          "pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100",
           meta.glowClassName,
         )}
       />
@@ -262,7 +262,7 @@ function RouteCard({ href, icon: Icon, title, description }) {
     >
       <span
         className={cn(
-          "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(97,208,255,0.14),transparent_42%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+          "pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_top_left,rgba(97,208,255,0.14),transparent_42%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100",
         )}
       />
 
@@ -367,11 +367,6 @@ export default function ContactsPage() {
                 "overflow-hidden border-white/10 bg-[linear-gradient(180deg,rgba(7,31,67,.985),rgba(10,47,99,.965))] shadow-[0_28px_72px_rgba(8,31,61,.16)]",
               )}
             >
-              <div
-                className={cn(
-                  "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(98,193,255,0.14),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(15,117,219,0.14),transparent_28%)]",
-                )}
-              />
               <div className={cn("relative z-[1]")}>
                 <Chip
                   variant="bright"
@@ -459,12 +454,6 @@ export default function ContactsPage() {
                 "overflow-hidden border-[#dce8f4] bg-[linear-gradient(180deg,rgba(255,255,255,.98),rgba(245,250,255,.98))] shadow-[0_20px_48px_rgba(8,31,61,.07)]",
               )}
             >
-              <div
-                className={cn(
-                  "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,208,255,0.10),transparent_30%)]",
-                )}
-              />
-
               <div className={cn("relative z-[1]")}>
                 <div
                   className={cn(
@@ -524,7 +513,7 @@ export default function ContactsPage() {
               padding="md"
               radius="xl"
               className={cn(
-                "before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(180deg,rgba(255,255,255,.22),transparent_28%)]",
+                "before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(180deg,rgba(255,255,255,.22),transparent_28%)]",
               )}
             >
               <SectionHeading

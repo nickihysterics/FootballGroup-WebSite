@@ -1,41 +1,96 @@
 	import { cn } from "@/shared/lib/cn.js";
 import { initialsOfTeam } from "@/shared/lib/matches.js";
 
-function TeamNode({ title, label, initials, accent = "club", light = false }) {
+function TeamNode({
+  title,
+  label,
+  initials,
+  accent = "club",
+  light = false,
+  align = "left",
+}) {
   return (
-    <div className={cn("flex min-w-0 items-center gap-3")}>
-      <span
-        className={cn(
-          "grid shrink-0 place-items-center rounded-full border font-extrabold",
-          light
-            ? "h-14 w-14 border-white/14 bg-white/10 text-white"
-            : "h-14 w-14 border-[#d6e4f1] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9fc_100%)] text-[#27446a]",
-          accent === "club" && !light && "border-sky-200 bg-[linear-gradient(180deg,#f8fdff_0%,#eaf5ff_100%)] text-[#0d4ea5]",
-          "text-[15px]",
-        )}
-      >
-        {initials}
-      </span>
+    <div
+      className={cn(
+        "flex min-w-0 items-center gap-3",
+        align === "right" && "justify-end text-right",
+      )}
+    >
+      {align === "right" ? (
+        <>
+          <div className={cn("min-w-0")}>
+            <div
+              className={cn(
+                "truncate text-[10px] font-extrabold uppercase tracking-[0.16em]",
+                light ? "text-white/42" : "text-[#87a0bc]",
+              )}
+            >
+              {title}
+            </div>
 
-      <div className={cn("min-w-0")}>
-        <div
-          className={cn(
-            "truncate text-[10px] font-extrabold uppercase tracking-[0.16em]",
-            light ? "text-white/42" : "text-[#87a0bc]",
-          )}
-        >
-          {title}
-        </div>
+            <div
+              className={cn(
+                "truncate text-[15px] font-semibold leading-5",
+                light ? "text-white" : "text-[#0b2344]",
+              )}
+            >
+              {label}
+            </div>
+          </div>
 
-        <div
-          className={cn(
-            "truncate text-[15px] font-semibold leading-5",
-            light ? "text-white" : "text-[#0b2344]",
-          )}
-        >
-          {label}
-        </div>
-      </div>
+          <span
+            className={cn(
+              "grid shrink-0 place-items-center rounded-full border font-extrabold",
+              light
+                ? "h-14 w-14 border-white/14 bg-white/10 text-white"
+                : "h-14 w-14 border-[#d6e4f1] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9fc_100%)] text-[#27446a]",
+              accent === "club" &&
+                !light &&
+                "border-sky-200 bg-[linear-gradient(180deg,#f8fdff_0%,#eaf5ff_100%)] text-[#0d4ea5]",
+              "text-[15px]",
+            )}
+          >
+            {initials}
+          </span>
+        </>
+      ) : (
+        <>
+          <span
+            className={cn(
+              "grid shrink-0 place-items-center rounded-full border font-extrabold",
+              light
+                ? "h-14 w-14 border-white/14 bg-white/10 text-white"
+                : "h-14 w-14 border-[#d6e4f1] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9fc_100%)] text-[#27446a]",
+              accent === "club" &&
+                !light &&
+                "border-sky-200 bg-[linear-gradient(180deg,#f8fdff_0%,#eaf5ff_100%)] text-[#0d4ea5]",
+              "text-[15px]",
+            )}
+          >
+            {initials}
+          </span>
+
+          <div className={cn("min-w-0")}>
+            <div
+              className={cn(
+                "truncate text-[10px] font-extrabold uppercase tracking-[0.16em]",
+                light ? "text-white/42" : "text-[#87a0bc]",
+              )}
+            >
+              {title}
+            </div>
+
+            <div
+              className={cn(
+                "truncate text-[15px] font-semibold leading-5",
+                light ? "text-white" : "text-[#0b2344]",
+              )}
+            >
+              {label}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -50,7 +105,7 @@ export default function MatchTeamsLine({
   return (
     <div
       className={cn(
-        "grid gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center",
+        "grid gap-4 md:grid-cols-[minmax(0,1fr)_110px_minmax(0,1fr)] md:items-center md:gap-8",
         className,
       )}
     >
@@ -60,6 +115,7 @@ export default function MatchTeamsLine({
         initials={initialsOfTeam(clubName)}
         accent="club"
         light={light}
+        align="left"
       />
 
       <div
@@ -86,6 +142,7 @@ export default function MatchTeamsLine({
         initials={initialsOfTeam(opponent)}
         accent="opponent"
         light={light}
+        align="right"
       />
     </div>
   );
