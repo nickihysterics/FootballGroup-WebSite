@@ -15,6 +15,8 @@ import { PAGE_ROUTES } from "@/app/router/pageRoutes.js";
 import { cn } from "@/shared/lib/cn.js";
 import { useI18n } from "@/shared/i18n/index.jsx";
 import GazpromMark from "@/shared/ui/BrandMark/GazpromMark.jsx";
+import FlagEnIcon from "@/shared/ui/FlagEnIcon/FlagEnIcon.jsx";
+import FlagRuIcon from "@/shared/ui/FlagRuIcon/FlagRuIcon.jsx";
 
 const NAV_ICONS = {
   home: House,
@@ -142,37 +144,57 @@ function BrandBlock({ club, compact = false }) {
 }
 
 function LanguageToggle({ className }) {
-  const { language, toggleLanguage, t } = useI18n();
+  const { language, setLanguage, t } = useI18n();
   const isEnglish = language === "en";
 
+  const options = [
+    {
+      key: "ru",
+      label: t("language.ruShort"),
+      ariaLabel: t("language.toggleToRu"),
+      Icon: FlagRuIcon,
+      active: !isEnglish,
+    },
+    {
+      key: "en",
+      label: t("language.enShort"),
+      ariaLabel: t("language.toggleToEn"),
+      Icon: FlagEnIcon,
+      active: isEnglish,
+    },
+  ];
+
   return (
-    <button
-      type="button"
-      onClick={toggleLanguage}
-      aria-label={isEnglish ? t("language.toggleToRu") : t("language.toggleToEn")}
+    <div
       className={cn(
-        "inline-flex h-10 items-center gap-2 rounded-[15px] border border-[#d9e5f2] bg-white/88 px-3.5 text-[12px] font-extrabold uppercase tracking-[0.14em] text-[#17375f] shadow-[0_7px_18px_rgba(18,76,154,.06)] transition-all duration-200 hover:bg-white",
+        "inline-flex items-center rounded-[16px] border border-[#d8e4f1] bg-white/92 p-1 shadow-[0_8px_20px_rgba(18,76,154,.06)] backdrop-blur-md",
         className,
       )}
+      role="group"
+      aria-label="Language switcher"
     >
-      <span
-        className={cn(
-          "rounded-full px-1.5 py-0.5",
-          !isEnglish && "bg-[#eaf4ff] text-[#0f4ea8]",
-        )}
-      >
-        {t("language.ruShort")}
-      </span>
-      <span className="text-[#8ba0b8]">/</span>
-      <span
-        className={cn(
-          "rounded-full px-1.5 py-0.5",
-          isEnglish && "bg-[#eaf4ff] text-[#0f4ea8]",
-        )}
-      >
-        {t("language.enShort")}
-      </span>
-    </button>
+      {options.map(({ key, label, ariaLabel, Icon, active }) => (
+        <button
+          key={key}
+          type="button"
+          onClick={() => setLanguage(key)}
+          aria-label={ariaLabel}
+          aria-pressed={active}
+          className={cn(
+            "group inline-flex cursor-pointer items-center gap-2 rounded-[12px] px-3 py-2 text-[13px] font-semibold leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9fc4ff]",
+            active
+              ? "bg-[#eef5ff] text-[#0f4ea8] shadow-[0_4px_10px_rgba(15,78,168,.10)]"
+              : "text-[#71839a] hover:bg-[#f7fbff] hover:text-[#17375f]",
+          )}
+        >
+          <span className="flex h-[14px] w-[20px] shrink-0 overflow-hidden rounded-[4px] ring-1 ring-black/5">
+            <Icon className="block h-full w-full" />
+          </span>
+
+          <span className="min-w-[22px]">{label}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
