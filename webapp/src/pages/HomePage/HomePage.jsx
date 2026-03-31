@@ -15,6 +15,11 @@ import CountdownChip from "@/features/countdown/CountdownChip.jsx";
 import usePageData from "@/features/page-data/usePageData.js";
 import { cn } from "@/shared/lib/cn.js";
 import { translateGalleryCategory, useI18n } from "@/shared/i18n/index.jsx";
+import {
+  localizeGalleryItem,
+  localizeStory,
+  localizeTrophy,
+} from "@/shared/lib/contentLocalization.js";
 import { normalizeMatch } from "@/shared/lib/matches.js";
 import { normalizeTeamPlayer } from "@/shared/lib/teamPlayers.js";
 import Button from "@/shared/ui/Button/Button.jsx";
@@ -517,15 +522,25 @@ export default function HomePage() {
 
   const club = data?.club || {};
   const hero = data?.hero || {};
+  const featuredStories = (hero?.featured_news || []).map((story) =>
+    localizeStory(story, language),
+  );
+  const galleryItems = (hero?.gallery_items || []).map((item) =>
+    localizeGalleryItem(item, language),
+  );
+  const localizedTrophies = (hero?.trophies || []).map((item) =>
+    localizeTrophy(item, language),
+  );
+  const versusLabel = t("common.versus");
 
   const featuredMatch = hero?.featured_match || null;
-  const leadStory = hero?.featured_news?.[0] || null;
-  const secondStory = hero?.featured_news?.[1] || null;
+  const leadStory = featuredStories[0] || null;
+  const secondStory = featuredStories[1] || null;
   const latestResult = hero?.latest_result || null;
   const playerFocus = hero?.featured_players?.[0] || null;
   const scheduleRail = (hero?.next_matches || []).slice(0, 3);
-  const galleryRail = (hero?.gallery_items || []).slice(0, 4);
-  const trophies = (hero?.trophies || []).slice(0, 4);
+  const galleryRail = galleryItems.slice(0, 4);
+  const trophies = localizedTrophies.slice(0, 4);
   const normalizedFeaturedMatch = featuredMatch
     ? normalizeMatch(featuredMatch, -10, language)
     : null;
@@ -548,7 +563,7 @@ export default function HomePage() {
 
   const visualImage =
     leadStory?.cover_url ||
-    hero?.gallery_items?.[0]?.image_url ||
+    galleryItems[0]?.image_url ||
     hero?.featured_players?.[0]?.photo_url;
 
   return (
@@ -604,7 +619,7 @@ export default function HomePage() {
                   </div>
 
                   <div className="mt-4 font-[var(--font-display)] text-[clamp(1.45rem,2.2vw,2rem)] leading-[0.92] tracking-[-0.045em] text-white">
-                    {club?.short_name} vs {normalizedFeaturedMatch.opponent}
+                    {club?.short_name} {versusLabel} {normalizedFeaturedMatch.opponent}
                   </div>
 
                   <p className="mt-2 text-[14px] leading-6 text-white/72">
@@ -732,7 +747,7 @@ export default function HomePage() {
                   </div>
 
                   <h3 className="mt-4 font-[var(--font-display)] text-[clamp(1.7rem,2.2vw,2.2rem)] leading-[0.93] tracking-[-0.045em] text-white">
-                    {club?.short_name} vs {normalizedFeaturedMatch.opponent}
+                    {club?.short_name} {versusLabel} {normalizedFeaturedMatch.opponent}
                   </h3>
 
                   <p className="mt-3 text-[15px] leading-7 text-white/72">
@@ -932,7 +947,7 @@ export default function HomePage() {
               }
               text={
                 normalizedFeaturedMatch
-                  ? `${club?.short_name} vs ${normalizedFeaturedMatch.opponent}`
+                  ? `${club?.short_name} ${versusLabel} ${normalizedFeaturedMatch.opponent}`
                   : t("home.nextSlotFallbackText")
               }
             />

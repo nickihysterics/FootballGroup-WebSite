@@ -396,7 +396,7 @@ export default function ContactsPage() {
                     <ContactAction
                       href={`mailto:${club.email}`}
                       icon={Mail}
-                      title="Email"
+                      title={t("common.email")}
                       value={club.email}
                     />
                   ) : null}

@@ -1,4 +1,16 @@
-import { formatDateValue, formatHeightValue, translate } from "@/shared/i18n/index.jsx";
+import {
+  formatDateValue,
+  formatHeightValue,
+  formatWeightValue,
+  translate,
+} from "@/shared/i18n/index.jsx";
+import {
+  localizeCountry,
+  localizePlace,
+  localizePlayerName,
+  localizePreviousClub,
+  resolveLocalizedField,
+} from "@/shared/lib/contentLocalization.js";
 
 const POSITION_ORDER = {
   GK: 1,
@@ -96,10 +108,27 @@ export function normalizeTeamPlayer(player, language = "ru") {
   if (!player) return null;
 
   const position = resolvePositionKey(player.position || player.position_label);
+  const localizedFullName =
+    localizePlayerName(resolveLocalizedField(player, "full_name", language), language) || translate(language, "positions.default");
+  const localizedCitizenship = localizeCountry(resolveLocalizedField(player, "citizenship", language), language);
+  const localizedPreviousClub = localizePreviousClub(resolveLocalizedField(player, "previous_club", language), language);
+  const localizedPlaceOfBirth = localizePlace(
+    resolveLocalizedField(player, "place_of_birth", language) || resolveLocalizedField(player, "hometown", language),
+    language,
+  );
+  const localizedAchievements = resolveLocalizedField(player, "achievements", language);
+  const localizedBio = resolveLocalizedField(player, "bio", language);
+  const compactProfile = [
+    localizedCitizenship || null,
+    player.height_cm ? formatHeightValue(language, player.height_cm) : null,
+    player.weight_kg ? formatWeightValue(language, player.weight_kg) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return {
     ...player,
-    full_name: player.full_name || translate(language, "positions.default"),
+    full_name: localizedFullName,
     slug: player.slug || resolvePlayerSlug(player),
     photo_url: player.photo_url || player.remote_photo_url || "",
     number: player.number ?? "",
@@ -110,17 +139,19 @@ export function normalizeTeamPlayer(player, language = "ru") {
     goals_for_club: player.goals_for_club ?? 0,
     yellow_cards: player.yellow_cards ?? 0,
     red_cards: player.red_cards ?? 0,
-    citizenship: player.citizenship || "",
-    previous_club: player.previous_club || translate(language, "common.na"),
+    citizenship: localizedCitizenship || "",
+    previous_club: localizedPreviousClub || translate(language, "common.na"),
     birth_date_label: formatBirthDate(player.birth_date, language),
     height_cm: player.height_cm ?? null,
     weight_kg: player.weight_kg ?? null,
     age: player.age ?? null,
-    place_of_birth: player.place_of_birth || player.hometown || "",
-    initials: player.initials || initialsOf(player.full_name),
+    place_of_birth: localizedPlaceOfBirth || "",
+    initials: player.initials || initialsOf(localizedFullName),
     captain: Boolean(player.captain),
     featured: Boolean(player.featured),
-    achievements: player.achievements || "",
+    achievements: localizedAchievements || "",
+    compact_profile: compactProfile || resolvePositionLabel(position, language),
+    bio: localizedBio || compactProfile || resolvePositionLabel(position, language),
     sort_order: player.sort_order ?? 999,
   };
 }

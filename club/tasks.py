@@ -15,12 +15,36 @@ def refresh_match_hub():
     upcoming = list(
         Match.objects.filter(start_at__gte=now)
         .order_by("start_at")
-        .values("opponent", "competition", "start_at", "venue", "city", "status")[:3]
+        .values(
+            "opponent",
+            "opponent_ru",
+            "opponent_en",
+            "competition",
+            "competition_ru",
+            "competition_en",
+            "start_at",
+            "venue",
+            "venue_ru",
+            "venue_en",
+            "city",
+            "city_ru",
+            "city_en",
+            "status",
+        )[:3]
     )
     recent = list(
         Match.objects.filter(status=Match.Status.FINISHED)
         .order_by("-start_at")
-        .values("opponent", "score_for", "score_against", "competition")[:3]
+        .values(
+            "opponent",
+            "opponent_ru",
+            "opponent_en",
+            "score_for",
+            "score_against",
+            "competition",
+            "competition_ru",
+            "competition_en",
+        )[:3]
     )
     payload = {
         "upcoming": upcoming,
@@ -29,4 +53,3 @@ def refresh_match_hub():
     }
     cache.set(MATCH_HUB_CACHE_KEY, payload, timeout=60 * 15)
     return payload
-

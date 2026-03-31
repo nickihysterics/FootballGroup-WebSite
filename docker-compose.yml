@@ -23,13 +23,26 @@ services:
     volumes:
       - .:/app
       - webapp_node_modules:/app/webapp/node_modules
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+
+  nginx:
+    build:
+      context: .
+      dockerfile: infra/nginx/Dockerfile
+    depends_on:
+      web:
+        condition: service_started
+    ports:
+      - "8000:8000"
+      - "443:443"
+    volumes:
+      - nginx_certs:/etc/nginx/certs
 
   celery:
     build: .
@@ -69,3 +82,4 @@ services:
 volumes:
   postgres_data:
   webapp_node_modules:
+  nginx_certs:

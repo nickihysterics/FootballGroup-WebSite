@@ -8,6 +8,7 @@ import {
   PAGE_ROUTES,
 } from "@/app/router/pageRoutes.js";
 import { getPageTitle, useI18n } from "@/shared/i18n/index.jsx";
+import { localizeClubProfile } from "@/shared/lib/contentLocalization.js";
 import usePagePayload from "@/features/page-data/usePagePayload.js";
 import SiteFooter from "@/widgets/layout/SiteFooter.jsx";
 import SiteHeader from "@/widgets/layout/SiteHeader.jsx";
@@ -62,14 +63,14 @@ export default function PublicLayout({
 
   const chromeClub = activePayload?.club || initialPayload?.club || FALLBACK_CLUB;
 
-  const club = {
+  const club = localizeClubProfile({
     ...FALLBACK_CLUB,
     ...(chromeClub || {}),
     links: {
       ...FALLBACK_CLUB.links,
       ...(chromeClub?.links || {}),
     },
-  };
+  }, language);
 
   const resolvedPage = currentRoute?.page || initialRoute?.page || initialPage || "home";
 
@@ -108,6 +109,12 @@ export default function PublicLayout({
     (!isResolvedForCurrentPath ||
       pageState.status === "loading" ||
       !activePayload);
+  const localizedPayload = activePayload
+    ? {
+        ...activePayload,
+        club,
+      }
+    : null;
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[radial-gradient(circle_at_0%_0%,rgba(117,210,255,0.36),transparent_30%),radial-gradient(circle_at_100%_12%,rgba(13,78,165,0.18),transparent_28%),linear-gradient(180deg,#f8fbff_0%,#eef4fa_52%,#edf3f9_100%)]">
@@ -131,7 +138,7 @@ export default function PublicLayout({
           ) : (
             <Outlet
               context={{
-                data: activePayload,
+                data: localizedPayload,
                 club,
                 route: currentRoute,
               }}

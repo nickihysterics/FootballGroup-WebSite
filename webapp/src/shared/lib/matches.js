@@ -4,8 +4,16 @@ import {
   formatFullDateLabel as formatFullDateValue,
   formatMonthLabel as formatMonthValue,
   formatTimeLabel as formatTimeValue,
+  resolveLanguage,
   translate,
 } from "@/shared/i18n/index.jsx";
+import {
+  localizeCompetition,
+  localizeOpponent,
+  localizePlace,
+  resolveLocalizedField,
+  localizeVenue,
+} from "@/shared/lib/contentLocalization.js";
 
 function capitalize(value) {
   if (!value) return "";
@@ -32,7 +40,8 @@ export function slugify(value) {
 
 export function initialsOfTeam(name) {
   const raw = String(name || "")
-    .replace(/\bфк\b/giu, "")
+    .replace(/[\/|]/gu, " ")
+    .replace(/\b(фк|fc)\b/giu, "")
     .trim();
 
   const parts = raw.split(/\s+/).filter(Boolean);
@@ -120,7 +129,7 @@ export function resolveStatusMeta(match, language = "ru") {
     };
   }
 
-  if (raw.includes("побед")) {
+  if (raw.includes("побед") || raw.includes("win")) {
     return {
       label: translate(language, "match.status.win"),
       tone: "success",
@@ -128,7 +137,7 @@ export function resolveStatusMeta(match, language = "ru") {
     };
   }
 
-  if (raw.includes("пораж")) {
+  if (raw.includes("пораж") || raw.includes("loss")) {
     return {
       label: translate(language, "match.status.loss"),
       tone: "danger",
@@ -136,7 +145,7 @@ export function resolveStatusMeta(match, language = "ru") {
     };
   }
 
-  if (raw.includes("нич")) {
+  if (raw.includes("нич") || raw.includes("draw")) {
     return {
       label: translate(language, "match.status.draw"),
       tone: "warning",
@@ -183,11 +192,40 @@ export function resolveStatusMeta(match, language = "ru") {
   };
 }
 
+function buildSummaryText(match, language = "ru") {
+  const scoreLabel = resolveLanguage(language) === "en" ? "score" : "счёт";
+  const parts = [match.competition];
+
+  if (match.venueLabel && match.venueLabel !== translate(language, "match.arenaTba")) {
+    parts.push(match.venueLabel);
+  }
+
+  if (match.state === "upcoming") {
+    return resolveLanguage(language) === "en"
+      ? `Upcoming match in ${match.competition}.`
+      : `Предстоящий матч в турнире ${match.competition}.`;
+  }
+
+  if (match.resultText && /\d/.test(String(match.resultText))) {
+    parts.push(`${scoreLabel} ${match.resultText}.`);
+  }
+
+  return parts.filter(Boolean).join(" · ");
+}
+
 export function normalizeMatch(match, index, language = "ru") {
   const date = parseDate(match?.kickoff_iso);
   const state = resolveMatchState(match, date);
-  const opponent = match?.opponent || translate(language, "common.opponent");
-  const competition = match?.competition || translate(language, "match.clubMatch");
+  const opponent =
+    localizeOpponent(resolveLocalizedField(match, "opponent", language), language) || translate(language, "common.opponent");
+  const competition =
+    localizeCompetition(resolveLocalizedField(match, "competition", language), language) || translate(language, "match.clubMatch");
+  const venueLabel =
+    localizeVenue(resolveLocalizedField(match, "venue", language), language) || translate(language, "match.arenaTba");
+  const cityLabel =
+    localizePlace(resolveLocalizedField(match, "city", language), language) || translate(language, "match.locationTba");
+  const summary =
+    resolveLocalizedField(match, "summary", language) || "";
 
   const normalized = {
     ...match,
@@ -204,17 +242,19 @@ export function normalizeMatch(match, index, language = "ru") {
     monthLabel: formatMonthLabel(language, date),
     fullDateLabel: formatFullDateLabel(language, date),
     timeLabel: formatTimeLabel(language, date),
-    venueLabel: match?.venue || translate(language, "match.arenaTba"),
-    cityLabel: match?.city || translate(language, "match.locationTba"),
+    venueLabel,
+    cityLabel,
+    summary,
     resultText:
       state === "upcoming" && !(match?.result_label && /\d/.test(String(match.result_label)))
-        ? "VS"
+        ? "×"
         : match?.result_label || translate(language, "common.na"),
-    summaryText: match?.summary || "",
+    summaryText: "",
   };
 
   return {
     ...normalized,
+    summaryText: summary || buildSummaryText(normalized, language),
     statusMeta: resolveStatusMeta(normalized, language),
   };
 }

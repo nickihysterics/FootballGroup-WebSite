@@ -7,6 +7,13 @@ from .models import ClubProfile, GalleryItem, Match, NewsPost, Player, Trophy
 from .tasks import MATCH_HUB_CACHE_KEY, refresh_match_hub
 
 
+MATCH_STATUS_LABELS = {
+    Match.Status.UPCOMING: {"ru": "Скоро", "en": "Soon"},
+    Match.Status.LIVE: {"ru": "В эфире", "en": "Live"},
+    Match.Status.FINISHED: {"ru": "Завершен", "en": "Finished"},
+}
+
+
 def absolutize_url(request, url):
     if not url:
         return ""
@@ -15,24 +22,52 @@ def absolutize_url(request, url):
     return request.build_absolute_uri(url)
 
 
+def first_text(*values):
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, str):
+            value = value.strip()
+        if value != "":
+            return value
+    return ""
+
+
+def read_value(source, key, default=""):
+    if source is None:
+        return default
+    if isinstance(source, dict):
+        return source.get(key, default)
+    return getattr(source, key, default)
+
+
+def resolve_localized_pair(source, field_name, fallback_ru="", fallback_en=""):
+    legacy = first_text(read_value(source, field_name, ""))
+    value_ru = first_text(read_value(source, f"{field_name}_ru", ""))
+    value_en = first_text(read_value(source, f"{field_name}_en", ""))
+
+    resolved_ru = first_text(value_ru, legacy, value_en, fallback_ru, fallback_en)
+    resolved_en = first_text(value_en, legacy, value_ru, fallback_en, fallback_ru)
+    return resolved_ru, resolved_en
+
+
+def assign_localized_field(payload, source, field_name, fallback_ru="", fallback_en=""):
+    value_ru, value_en = resolve_localized_pair(source, field_name, fallback_ru, fallback_en)
+    payload[field_name] = value_ru
+    payload[f"{field_name}_ru"] = value_ru
+    payload[f"{field_name}_en"] = value_en
+
+
 def get_club_profile():
     return ClubProfile.objects.order_by("id").first()
 
 
 def serialize_profile(profile):
     profile = profile or get_club_profile()
-    return {
-        "name": profile.name if profile else "Футбольная команда Газпром",
-        "short_name": profile.short_name if profile else "Газпром Футбол",
-        "tagline": profile.tagline if profile else "Матч-дэй, арена и клубный продукт уровня большой команды.",
-        "mission": profile.mission if profile else "Клубная платформа строится вокруг следующего матча, домашней арены и медиа-кампании.",
-        "city": profile.city if profile else "Санкт-Петербург",
-        "stadium": profile.stadium if profile else "Газпром Арена",
-        "address": profile.address if profile else "Санкт-Петербург",
+
+    payload = {
         "phone": profile.phone if profile else "+7 (800) 000-00-00",
         "email": profile.email if profile else "team@gazprom-fc.ru",
-        "hero_badge": profile.hero_badge if profile else "Газпром футбольная программа",
-        "source_name": profile.source_name if profile else "",
         "source_url": profile.source_url if profile else "",
         "stats": {
             "wins": profile.stats_wins if profile else 18,
@@ -50,56 +85,76 @@ def serialize_profile(profile):
         },
     }
 
+    assign_localized_field(payload, profile, "name", "Футбольная команда Газпром", "Gazprom Football Club")
+    assign_localized_field(payload, profile, "short_name", "Газпром Футбол", "Gazprom Football")
+    assign_localized_field(
+        payload,
+        profile,
+        "tagline",
+        "Матч-дэй, арена и клубный продукт уровня большой команды.",
+        "Matchday, arena and club product at top-flight level.",
+    )
+    assign_localized_field(
+        payload,
+        profile,
+        "mission",
+        "Клубная платформа строится вокруг следующего матча, домашней арены и медиа-кампании.",
+        "The club platform is built around the next fixture, the home arena and the media campaign.",
+    )
+    assign_localized_field(payload, profile, "city", "Санкт-Петербург", "Saint Petersburg")
+    assign_localized_field(payload, profile, "stadium", "Газпром Арена", "Gazprom Arena")
+    assign_localized_field(payload, profile, "address", "Санкт-Петербург", "Saint Petersburg")
+    assign_localized_field(payload, profile, "hero_badge", "Газпром футбольная программа", "Gazprom football program")
+    assign_localized_field(payload, profile, "source_name", "", "")
+    return payload
+
 
 def serialize_match(match, request=None):
     if not match:
         return None
 
     start_at = timezone.localtime(match.start_at)
-    return {
-        "opponent": match.opponent,
-        "competition": match.competition,
-        "city": match.city,
-        "venue": match.venue,
+    payload = {
         "status": match.status,
-        "status_label": match.get_status_display(),
+        "status_label": MATCH_STATUS_LABELS.get(match.status, {}).get("ru", match.get_status_display()),
+        "status_label_ru": MATCH_STATUS_LABELS.get(match.status, {}).get("ru", match.get_status_display()),
+        "status_label_en": MATCH_STATUS_LABELS.get(match.status, {}).get("en", match.get_status_display()),
         "date_label": date_format(start_at, "j E Y"),
         "short_date_label": date_format(start_at, "d E"),
         "time_label": time_format(start_at, "H:i"),
         "kickoff_iso": start_at.isoformat(),
         "source_url": match.source_url,
-        "summary": match.summary,
         "score_for": match.score_for,
         "score_against": match.score_against,
         "result_label": match.result_label,
         "opponent_logo_url": absolutize_url(request, match.opponent_logo_url),
     }
+    assign_localized_field(payload, match, "opponent")
+    assign_localized_field(payload, match, "competition")
+    assign_localized_field(payload, match, "city")
+    assign_localized_field(payload, match, "venue")
+    assign_localized_field(payload, match, "summary")
+    return payload
 
 
 def serialize_player(player, request=None):
     if not player:
         return None
 
-    return {
+    payload = {
         "id": player.id,
         "slug": player.slug,
-        "full_name": player.full_name,
         "number": player.number,
         "position": player.position,
         "position_label": player.get_position_display(),
         "captain": player.captain,
-        "bio": player.bio,
-        "achievements": player.achievements,
         "photo_url": absolutize_url(request, player.photo_url),
         "source_url": player.source_url,
         "birth_date": player.birth_date.isoformat() if player.birth_date else "",
         "birth_date_label": date_format(player.birth_date, "j E Y") if player.birth_date else "",
         "age": player.age,
-        "place_of_birth": player.place_of_birth,
-        "citizenship": player.citizenship,
         "height_cm": player.height_cm,
         "weight_kg": player.weight_kg,
-        "previous_club": player.previous_club,
         "matches_for_club": player.matches_for_club,
         "minutes_for_club": player.minutes_for_club,
         "goals_for_club": player.goals_for_club,
@@ -112,6 +167,14 @@ def serialize_player(player, request=None):
         "compact_profile": player.compact_profile,
         "initials": player.initials,
     }
+    assign_localized_field(payload, player, "full_name")
+    assign_localized_field(payload, player, "bio")
+    assign_localized_field(payload, player, "achievements")
+    assign_localized_field(payload, player, "hometown")
+    assign_localized_field(payload, player, "place_of_birth")
+    assign_localized_field(payload, player, "citizenship")
+    assign_localized_field(payload, player, "previous_club")
+    return payload
 
 
 def serialize_news(post, request=None):
@@ -119,47 +182,50 @@ def serialize_news(post, request=None):
         return None
 
     published_at = timezone.localtime(post.published_at)
-    return {
+    payload = {
         "id": post.id,
         "slug": post.slug,
-        "title": post.title,
-        "excerpt": post.excerpt,
-        "body": post.body,
         "cover_url": absolutize_url(request, post.cover_url),
         "published_at": published_at.isoformat(),
         "published_label": date_format(published_at, "j E Y"),
-        "source_name": post.source_name,
         "source_url": post.source_url,
         "featured": post.featured,
     }
+    assign_localized_field(payload, post, "title")
+    assign_localized_field(payload, post, "excerpt")
+    assign_localized_field(payload, post, "body")
+    assign_localized_field(payload, post, "source_name")
+    return payload
 
 
 def serialize_gallery_item(item, request=None):
     if not item:
         return None
 
-    return {
+    payload = {
         "id": item.id,
-        "title": item.title,
         "category": item.category,
         "category_label": item.get_category_display(),
-        "caption": item.caption,
         "image_url": absolutize_url(request, item.image_url),
-        "accent": item.accent,
-        "source_name": item.source_name,
         "source_url": item.source_url,
     }
+    assign_localized_field(payload, item, "title")
+    assign_localized_field(payload, item, "caption")
+    assign_localized_field(payload, item, "accent")
+    assign_localized_field(payload, item, "source_name")
+    return payload
 
 
 def serialize_trophy(trophy):
     if not trophy:
         return None
 
-    return {
-        "title": trophy.title,
+    payload = {
         "season": trophy.season,
-        "description": trophy.description,
     }
+    assign_localized_field(payload, trophy, "title")
+    assign_localized_field(payload, trophy, "description")
+    return payload
 
 
 def get_match_hub_payload():
@@ -179,34 +245,35 @@ def get_match_hub_payload():
     upcoming = []
     for item in payload.get("upcoming", []):
         start_at = normalize_start(item.get("start_at"))
-        upcoming.append(
-            {
-                "opponent": item.get("opponent", ""),
-                "competition": item.get("competition", ""),
-                "venue": item.get("venue", ""),
-                "city": item.get("city", ""),
-                "status": item.get("status", ""),
-                "date_label": date_format(start_at, "j E") if start_at else "",
-                "time_label": time_format(start_at, "H:i") if start_at else "",
-                "kickoff_iso": start_at.isoformat() if start_at else "",
-            }
-        )
+        serialized = {
+            "status": item.get("status", ""),
+            "status_label": MATCH_STATUS_LABELS.get(item.get("status"), {}).get("ru", ""),
+            "status_label_ru": MATCH_STATUS_LABELS.get(item.get("status"), {}).get("ru", ""),
+            "status_label_en": MATCH_STATUS_LABELS.get(item.get("status"), {}).get("en", ""),
+            "date_label": date_format(start_at, "j E") if start_at else "",
+            "time_label": time_format(start_at, "H:i") if start_at else "",
+            "kickoff_iso": start_at.isoformat() if start_at else "",
+        }
+        assign_localized_field(serialized, item, "opponent")
+        assign_localized_field(serialized, item, "competition")
+        assign_localized_field(serialized, item, "venue")
+        assign_localized_field(serialized, item, "city")
+        upcoming.append(serialized)
 
     recent = []
     for item in payload.get("recent", []):
-        recent.append(
-            {
-                "opponent": item.get("opponent", ""),
-                "competition": item.get("competition", ""),
-                "score_for": item.get("score_for"),
-                "score_against": item.get("score_against"),
-                "result_label": (
-                    f"{item.get('score_for')}:{item.get('score_against')}"
-                    if item.get("score_for") is not None and item.get("score_against") is not None
-                    else "vs"
-                ),
-            }
-        )
+        serialized = {
+            "score_for": item.get("score_for"),
+            "score_against": item.get("score_against"),
+            "result_label": (
+                f"{item.get('score_for')}:{item.get('score_against')}"
+                if item.get("score_for") is not None and item.get("score_against") is not None
+                else "vs"
+            ),
+        }
+        assign_localized_field(serialized, item, "opponent")
+        assign_localized_field(serialized, item, "competition")
+        recent.append(serialized)
 
     updated_at = payload.get("updated_at")
     if isinstance(updated_at, str):

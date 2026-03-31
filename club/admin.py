@@ -12,11 +12,39 @@ admin.site.index_title = "Управление клубным сайтом"
 class ClubProfileAdmin(admin.ModelAdmin):
     list_display = ("name", "city", "stadium", "updated_at")
     fieldsets = (
-        ("Бренд", {"fields": ("name", "short_name", "tagline", "mission", "hero_badge")}),
-        ("Локация и контакты", {"fields": ("city", "stadium", "address", "phone", "email", "telegram_url", "vk_url")}),
+        (
+            "Бренд RU / EN",
+            {
+                "fields": (
+                    ("name_ru", "name_en"),
+                    ("short_name_ru", "short_name_en"),
+                    ("tagline_ru", "tagline_en"),
+                    ("mission_ru", "mission_en"),
+                    ("hero_badge_ru", "hero_badge_en"),
+                )
+            },
+        ),
+        (
+            "Локация RU / EN",
+            {
+                "fields": (
+                    ("city_ru", "city_en"),
+                    ("stadium_ru", "stadium_en"),
+                    ("address_ru", "address_en"),
+                )
+            },
+        ),
+        ("Локация и контакты", {"fields": ("phone", "email", "telegram_url", "vk_url")}),
         ("Коммерческие ссылки", {"fields": ("ticket_url", "membership_url", "shop_url", "hospitality_url", "video_url")}),
         ("Цифры", {"fields": ("stats_wins", "stats_goals", "stats_clean_sheets")}),
-        ("Источник", {"fields": ("source_name", "source_url")}),
+        ("Источник RU / EN", {"fields": (("source_name_ru", "source_name_en"), "source_url")}),
+        (
+            "Legacy fields",
+            {
+                "classes": ("collapse",),
+                "fields": ("name", "short_name", "tagline", "mission", "city", "stadium", "address", "hero_badge", "source_name"),
+            },
+        ),
     )
 
 
@@ -25,17 +53,47 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ("photo_preview", "full_name", "number", "position", "citizenship", "matches_for_club", "goals_for_club", "captain", "featured")
     list_filter = ("position", "captain", "featured", "citizenship")
     list_editable = ("featured",)
-    search_fields = ("full_name", "hometown", "achievements", "citizenship", "previous_club")
+    search_fields = ("full_name", "full_name_ru", "full_name_en", "hometown", "achievements", "citizenship", "previous_club")
     prepopulated_fields = {"slug": ("full_name",)}
     readonly_fields = ("photo_preview_large", "source_link")
     ordering = ("sort_order", "number", "full_name")
     fieldsets = (
-        ("Карточка", {"fields": ("full_name", "slug", "number", "position", "captain", "featured", "sort_order")}),
+        (
+            "Карточка",
+            {
+                "fields": (
+                    ("full_name_ru", "full_name_en"),
+                    "slug",
+                    ("number", "position"),
+                    ("captain", "featured", "sort_order"),
+                )
+            },
+        ),
         ("Фото и источник", {"fields": ("photo", "remote_photo_url", "photo_preview_large", "source_url", "source_link")}),
-        ("Профиль", {"fields": ("bio", "achievements", "hometown", "place_of_birth", "citizenship", "birth_date", "age", "previous_club")}),
+        (
+            "Профиль RU / EN",
+            {
+                "fields": (
+                    ("bio_ru", "bio_en"),
+                    ("achievements_ru", "achievements_en"),
+                    ("hometown_ru", "hometown_en"),
+                    ("place_of_birth_ru", "place_of_birth_en"),
+                    ("citizenship_ru", "citizenship_en"),
+                    ("previous_club_ru", "previous_club_en"),
+                    ("birth_date", "age"),
+                )
+            },
+        ),
         ("Физика", {"fields": ("height_cm", "weight_kg")}),
         ("Статистика", {"fields": ("matches_for_club", "minutes_for_club", "goals_for_club", "yellow_cards", "red_cards")}),
         ("Визуальные индикаторы", {"classes": ("collapse",), "fields": ("speed", "stamina", "technique")}),
+        (
+            "Legacy fields",
+            {
+                "classes": ("collapse",),
+                "fields": ("full_name", "bio", "achievements", "hometown", "place_of_birth", "citizenship", "previous_club"),
+            },
+        ),
     )
 
     @admin.display(description="Фото")
@@ -61,14 +119,30 @@ class PlayerAdmin(admin.ModelAdmin):
 class MatchAdmin(admin.ModelAdmin):
     list_display = ("opponent", "competition", "start_at", "status", "featured")
     list_filter = ("status", "competition", "featured")
-    search_fields = ("opponent", "competition", "city", "venue")
+    search_fields = ("opponent", "opponent_ru", "opponent_en", "competition", "competition_ru", "competition_en", "city", "venue")
     date_hierarchy = "start_at"
     readonly_fields = ("source_link",)
     fieldsets = (
-        ("Матч", {"fields": ("opponent", "competition", "start_at", "status", "featured")}),
-        ("Локация", {"fields": ("venue", "city", "opponent_logo_url")}),
-        ("Счёт и описание", {"fields": ("score_for", "score_against", "summary")}),
+        (
+            "Матч RU / EN",
+            {
+                "fields": (
+                    ("opponent_ru", "opponent_en"),
+                    ("competition_ru", "competition_en"),
+                    ("start_at", "status", "featured"),
+                )
+            },
+        ),
+        ("Локация RU / EN", {"fields": (("venue_ru", "venue_en"), ("city_ru", "city_en"), "opponent_logo_url")}),
+        ("Счёт и описание RU / EN", {"fields": ("score_for", "score_against", ("summary_ru", "summary_en"))}),
         ("Источник", {"fields": ("source_url", "source_link")}),
+        (
+            "Legacy fields",
+            {
+                "classes": ("collapse",),
+                "fields": ("opponent", "competition", "venue", "city", "summary"),
+            },
+        ),
     )
 
     @admin.display(description="Источник")
@@ -82,14 +156,15 @@ class MatchAdmin(admin.ModelAdmin):
 class NewsPostAdmin(admin.ModelAdmin):
     list_display = ("cover_preview", "title", "published_at", "featured")
     list_filter = ("featured",)
-    search_fields = ("title", "excerpt", "body")
+    search_fields = ("title", "title_ru", "title_en", "excerpt", "body")
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ("cover_preview_large", "source_link")
     fieldsets = (
-        ("Публикация", {"fields": ("title", "slug", "published_at", "featured")}),
-        ("Контент", {"fields": ("excerpt", "body")}),
+        ("Публикация", {"fields": (("title_ru", "title_en"), "slug", "published_at", "featured")}),
+        ("Контент RU / EN", {"fields": (("excerpt_ru", "excerpt_en"), ("body_ru", "body_en"))}),
         ("Обложка", {"fields": ("cover", "remote_cover_url", "cover_preview_large")}),
-        ("Источник", {"fields": ("source_name", "source_url", "source_link")}),
+        ("Источник RU / EN", {"fields": (("source_name_ru", "source_name_en"), "source_url", "source_link")}),
+        ("Legacy fields", {"classes": ("collapse",), "fields": ("title", "excerpt", "body", "source_name")}),
     )
 
     @admin.display(description="Cover")
@@ -114,19 +189,24 @@ class NewsPostAdmin(admin.ModelAdmin):
 @admin.register(Trophy)
 class TrophyAdmin(admin.ModelAdmin):
     list_display = ("title", "season", "description")
-    search_fields = ("title", "season", "description")
+    search_fields = ("title", "title_ru", "title_en", "season", "description")
+    fieldsets = (
+        ("Трофей RU / EN", {"fields": (("title_ru", "title_en"), "season", ("description_ru", "description_en"))}),
+        ("Legacy fields", {"classes": ("collapse",), "fields": ("title", "description")}),
+    )
 
 
 @admin.register(GalleryItem)
 class GalleryItemAdmin(admin.ModelAdmin):
     list_display = ("image_preview", "title", "category", "accent")
     list_filter = ("category",)
-    search_fields = ("title", "caption", "accent")
+    search_fields = ("title", "title_ru", "title_en", "caption", "accent")
     readonly_fields = ("image_preview_large", "source_link")
     fieldsets = (
-        ("Карточка", {"fields": ("title", "category", "accent", "caption")}),
+        ("Карточка RU / EN", {"fields": (("title_ru", "title_en"), "category", ("accent_ru", "accent_en"), ("caption_ru", "caption_en"))}),
         ("Изображение", {"fields": ("image", "remote_image_url", "image_preview_large")}),
-        ("Источник", {"fields": ("source_name", "source_url", "source_link")}),
+        ("Источник RU / EN", {"fields": (("source_name_ru", "source_name_en"), "source_url", "source_link")}),
+        ("Legacy fields", {"classes": ("collapse",), "fields": ("title", "caption", "accent", "source_name")}),
     )
 
     @admin.display(description="Фото")

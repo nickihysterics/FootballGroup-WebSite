@@ -184,6 +184,9 @@ export default function StadiumScene({ clubName, stadiumName, featuredMatch = nu
   const { t } = useI18n();
   const resolvedClubName = clubName || t("brand.defaultShortName");
   const resolvedStadiumName = stadiumName || t("brand.defaultStadium");
+  const versusLabel = t("common.versus");
+  const featuredDateLabel = featuredMatch?.fullDateLabel || featuredMatch?.date_label || "";
+  const featuredTimeLabel = featuredMatch?.timeLabel || featuredMatch?.time_label || "";
 
   return (
     <div className="stadium-scene">
@@ -206,15 +209,15 @@ export default function StadiumScene({ clubName, stadiumName, featuredMatch = nu
 	 <div className="stadium-scene__hud">
 	   <span>{t("stadium.matchday")}</span>
 	   <strong>{resolvedStadiumName}</strong>
-	   <p>{featuredMatch ? `${resolvedClubName} vs ${featuredMatch.opponent}` : t("stadium.homeArena")}</p>
+	   <p>{featuredMatch ? `${resolvedClubName} ${versusLabel} ${featuredMatch.opponent}` : t("stadium.homeArena")}</p>
 	 </div>
 	 <div className="stadium-scene__scoreboard">
 	   <span>{featuredMatch?.competition || t("stadium.homeMatch")}</span>
-	   <strong>{featuredMatch ? `${featuredMatch.date_label} · ${featuredMatch.time_label}` : resolvedClubName}</strong>
+	   <strong>{featuredMatch ? `${featuredDateLabel} · ${featuredTimeLabel}` : resolvedClubName}</strong>
 	 </div>
 	 <div className="stadium-scene__footer">
 	   <span>{resolvedClubName}</span>
-	   <strong>{featuredMatch ? `${resolvedClubName} vs ${featuredMatch.opponent}` : resolvedStadiumName}</strong>
+	   <strong>{featuredMatch ? `${resolvedClubName} ${versusLabel} ${featuredMatch.opponent}` : resolvedStadiumName}</strong>
 	 </div>
     </div>
   );

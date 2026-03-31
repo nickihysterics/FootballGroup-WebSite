@@ -9,6 +9,10 @@ import {
 import { cn } from "@/shared/lib/cn.js";
 import usePageData from "@/features/page-data/usePageData.js";
 import { translateGalleryCategory, useI18n } from "@/shared/i18n/index.jsx";
+import {
+  localizeGalleryItem,
+  localizeStory,
+} from "@/shared/lib/contentLocalization.js";
 import Reveal from "@/shared/ui/Reveal/Reveal.jsx";
 import Surface from "@/shared/ui/Surface/Surface.jsx";
 
@@ -478,12 +482,14 @@ function GalleryCard({ item, featured = false }) {
 
 export default function MediaPage() {
   const { data } = usePageData();
-  const { t } = useI18n();
+  const { language, t } = useI18n();
 
-  const leadStory = data?.lead_story ?? null;
-  const newsItems = Array.isArray(data?.news_items) ? data.news_items : [];
+  const leadStory = data?.lead_story ? localizeStory(data.lead_story, language) : null;
+  const newsItems = Array.isArray(data?.news_items)
+    ? data.news_items.map((story) => localizeStory(story, language))
+    : [];
   const galleryItems = Array.isArray(data?.gallery_items)
-    ? data.gallery_items
+    ? data.gallery_items.map((item) => localizeGalleryItem(item, language))
     : [];
 
   const sideStories = newsItems.slice(1, 3);
